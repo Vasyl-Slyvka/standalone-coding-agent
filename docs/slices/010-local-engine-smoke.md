@@ -1,0 +1,24 @@
+# S02b.3 — живий локальний smoke test OpenCode + llama.cpp
+
+**25.09.2026 · обмежений експеримент на CPU, €0 за API.** Перевірено один локальний endpoint і один OpenCode run у синтетичному одноразовому Git repo. Це не порівняння трьох архітектур R1, не тест двох незалежних API-провайдерів і не вибір рушія. [Task/межі попереднього слайса](005-free-test-path.md), [R1 gate](../../ROADMAP.md).
+
+## Підготовка й межі
+
+| Компонент | Пін і перевірка |
+|---|---|
+| OpenCode CLI | Офіційний Linux x64 release `v1.18.32`; SHA-256 архіву `3046e0404fdc60fb80307e7a47824ba07477364178a4d09baa8548496dd6d43b`. [Випуск](https://github.com/anomalyco/opencode/releases/tag/v1.18.32). |
+| llama.cpp CPU | Офіційний Linux x64 release `b11177`, commit `1ab7e5ad2`; SHA-256 архіву `9e088583293c4c104953ead0dd8957f4e00dca318c7f241c039198e5eb2e2e54`. [Випуск](https://github.com/ggml-org/llama.cpp/releases/tag/b11177). |
+| Локальна модель | `Qwen/Qwen3-0.6B-GGUF`, Q4_K_M, 396 704 416 байтів завантаженого файла, SHA-256 `b0638f08417a2d3c8652760462eb5407c6e30173cf9608ad0820757a281eea0e`. [Файл моделі](https://huggingface.co/Qwen/Qwen3-0.6B-GGUF). |
+| Середовище | Linux x86_64, CPU, близько 9,7 GiB RAM, без GPU; `llama-server` на `127.0.0.1:8080`, context 8192, 2 CPU threads. |
+
+Тільки `localqwen/qwen3-0.6b-q4_k_m` у `enabled_providers`, явний `--model`; `small_model` теж локальна модель. Конфіг OpenCode: `share=disabled`, `autoupdate=false`, `compaction.auto=false`, `plugin=[]`, `lsp=false`, `formatter=false`; `permission` за замовчуванням `deny`, дозволені лише `read`, `glob`, `grep`; `edit`, `bash`, `webfetch`, `websearch` і `external_directory` заборонені. CLI `--pure`, без `--auto`. Сервер і CLI жили в одній ізольованій мережевій області. Запуск лише на синтетичних `README.md` та `hello.py`; модель, журнали й session export **не входять до Git**. OpenCode документує [локальний OpenAI-compatible endpoint](https://opencode.ai/docs/providers) і [дозволи](https://opencode.ai/docs/permissions/). Дозволи рушія самі по собі не є sandbox для коду стороннього plugin/runtime.
+
+## Спостереження
+
+- `llama-cli` окремо завершив локальну генерацію з кодом `0`; коротка генерація зупинилася під час thinking, без фінальної відповіді.
+- `GET /v1/models` сервера повернув єдину модель `qwen3-0.6b-q4_k_m`; `opencode run --format json` завершився з кодом `0` приблизно за 71 с.
+- Потік OpenCode: 2 `step_start`, 1 `tool_use(read hello.py)`, 2 `step_finish`, жодного error event. Перший крок: engine-reported input 3076/output 187/cache read 0; другий: input 81/output 97/cache read 3262. `sca.trace_audit` повернув `model_identity=unresolved` для обох і `api_call_count=UNKNOWN`.
+- Локальний `llama-server` зафіксував **три** завершені генерації (`task 0`, `task 2`, `task 197`), а JSONL — **два** `step_finish`. Додаткова генерація почалася раніше за читання файла; вона, імовірно, пов'язана з назвою сесії, але це не встановлено з per-request ідентифікаторів. Її ~549 prompt tokens/~256 output tokens не можна приписати кроку з JSONL. Це конкретний ризик прихованого виклику і неповної task telemetry.
+- Session export містить reasoning і `read`, але не фінальний текст відповіді. `hello.py` у Git-статусі лишився незміненим. **Коректну відповідь на задачу не підтверджено.** `cost: 0` у двох кроках — поле OpenCode для локального провайдера, не доказ повного обліку викликів чи грошового рахунку.
+
+**Рішення gate:** `S02b/R1 OPEN`. На цій ревізії CLI-події недостатні для доказу всіх model calls. Наступний живий етап має перехоплювати *кожний* HTTP-запит із request ID, provider/model і usage на локальному проксі, зіставити з engine step, перевірити причину третього виклику й спосіб вимкнути або врахувати його, після чого провести парні сценарії та два API-провайдери. Слабкий Qwen 0.6B не дає підстав оцінювати загальну якість OpenCode. Жодного платного виклику не робили.
