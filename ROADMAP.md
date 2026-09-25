@@ -4,7 +4,7 @@
 
 ## Рішення і послідовність
 
-**Поточне виконання по слайсах:** S01 — офлайновий task/Git preflight із [звітом](docs/slices/001-preflight.md); S02a — синтетичний стенд і telemetry contract із [звітом](docs/slices/002-benchmark-foundation.md); S02b.0 — [статичний аудит інтерфейсів](docs/slices/003-static-engine-audit.md) без API-викликів; S02b — **ще не виконаний** фактичний порівняльний engine/telemetry spike; S03 — ручний provider/model picker і нормалізація usage; S04 — обмежені workspace edits/commands; S05 — verifier/evidence та інтеграційний DoD. Цей поділ деталізує R1–R2 і **не вибирає engine наперед**. S01/S02a — Python standard-library експерименти; мова фінального engine залишається відкритою.
+**Поточне виконання по слайсах:** S01 — офлайновий task/Git preflight із [звітом](docs/slices/001-preflight.md); S02a — синтетичний стенд і telemetry contract із [звітом](docs/slices/002-benchmark-foundation.md); S02b.0 — [статичний аудит інтерфейсів](docs/slices/003-static-engine-audit.md); S02b.1 — [офлайновий аналізатор подій](docs/slices/004-offline-trace-audit.md); S02b — **ще не виконаний** фактичний порівняльний engine/telemetry spike; S03 — ручний provider/model picker і нормалізація usage; S04 — обмежені workspace edits/commands; S05 — verifier/evidence та інтеграційний DoD. Цей поділ деталізує R1–R2 і **не вибирає engine наперед**. Підготовчі слайси — Python standard-library експерименти; мова фінального engine залишається відкритою.
 
 ```mermaid
 flowchart TD
