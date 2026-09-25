@@ -4,14 +4,14 @@
 
 ## Що зроблено
 
-[`sca.trace_audit`](../../src/sca/trace_audit.py) читає існуючий JSONL локально. Користувач передає engine, provider і model вручну. Для Codex документовані [`turn.completed.usage`](https://developers.openai.com/codex/noninteractive) записуються як **turn observation**; назва моделі в цій події відсутня. Для OpenCode [CLI JSON format](https://dev.opencode.ai/docs/cli/) та [pinned SDK events/types](https://github.com/anomalyco/opencode/blob/34aa427434b054afcce7184764aa681159b5d769/packages/sdk/js/src/gen/types.gen.ts) використовуються `message.updated` і `message.part.updated` із `step-finish`. Однаковий `part.id` обліковується один раз, ідентичність провайдера/моделі зіставляється лише там, де є повні поля.
+[`sca.trace_audit`](../../src/sca/trace_audit.py) читає існуючий JSONL локально. Користувач передає engine, provider і model вручну. Для Codex документовані [`turn.completed.usage`](https://developers.openai.com/codex/noninteractive) записуються як **turn observation**; назва моделі в цій події відсутня. Для OpenCode [CLI JSON format](https://dev.opencode.ai/docs/cli/) й [внутрішні SDK event types](https://github.com/anomalyco/opencode/blob/34aa427434b054afcce7184764aa681159b5d769/packages/sdk/js/src/gen/types.gen.ts) є **різними потоками**: точний [`run.ts`](https://github.com/anomalyco/opencode/blob/34aa427434b054afcce7184764aa681159b5d769/packages/opencode/src/cli/cmd/run.ts) видає `step_finish` із `part`, а SSE видає `message.updated` і `message.part.updated`. У CLI-потоці модель не виводиться окремою подією; її ідентичність лишається `unresolved`. SSE може зіставити її лише за повних полів. Однаковий `part.id` обліковується один раз.
 
 ```bash
 PYTHONPATH=src python3 -m sca.trace_audit codex /path/to/events.jsonl --provider PROVIDER --model MODEL
 PYTHONPATH=src python3 -m sca.trace_audit opencode /path/to/events.jsonl --provider PROVIDER --model MODEL
 ```
 
-Результат містить типи/кількість подій, usage observations, виявлені явні розбіжності моделі та error events. `api_call_count` завжди `UNKNOWN`, `trace_completeness=unverified`, відсутні токени — `null`. Cache/reasoning не додаються до input/output. Це **не** нормалізований `calls[]` стенда S02a і не його per-call proof. Вихід не містить тексту prompt, tool output чи ключів. Сирий локальний JSONL може містити чутливі дані: не комітити/не надсилати його.
+Результат містить типи/кількість подій, usage observations, виявлені явні розбіжності моделі та error events. `api_call_count` завжди `UNKNOWN`, `trace_completeness=unverified`, відсутні токени — `null`. OpenCode `cost` позначено як `engine_reported_cost_usd`, без прирівнювання до рахунка API. Cache/reasoning не додаються до input/output. Це **не** нормалізований `calls[]` стенда S02a і не його per-call proof. Вихід не містить тексту prompt, tool output чи ключів. Сирий локальний JSONL може містити чутливі дані: не комітити/не надсилати його.
 
 ## Перевірка та обмеження
 
