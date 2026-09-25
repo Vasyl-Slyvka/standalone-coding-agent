@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -38,6 +39,8 @@ def audit_events(engine: str, lines: Iterable[str], provider: str, model: str) -
     observations: list[dict[str, Any]] = []
     messages: dict[str, tuple[str, str]] = {}
     parts: dict[str, dict[str, Any]] = {}
+    formats: set[str] = set()
+    sessions: set[str] = set()
     bad_models: set[str] = set()
     errors = 0
     events = 0
@@ -58,12 +61,19 @@ def audit_events(engine: str, lines: Iterable[str], provider: str, model: str) -
                 errors += 1
             if kind == "turn.completed":
                 usage = _tokens(event.get("usage"),
-                                ("input_tokens", "cached_input_tokens", "output_tokens",
+                                ("input_tokens", "cached_input_tokens", "cache_write_input_tokens", "output_tokens",
                                  "reasoning_output_tokens"))
                 observations.append({"granularity": "turn", "usage_source": "engine_reported",
                                      "tokens": usage, "model_identity": "not_in_event"})
         else:
             props = event.get("properties")
+            if kind in ("step_finish", "step_start", "tool_use"):
+                formats.add("cli_json")
+                session = event.get("sessionID")
+                if isinstance(session, str) and session:
+                    sessions.add(session)
+            if kind in ("message.updated", "message.part.updated"):
+                formats.add("sse")
             if kind == "message.updated" and isinstance(props, dict):
                 info = props.get("info")
                 if isinstance(info, dict) and info.get("role") == "assistant":
@@ -76,8 +86,8 @@ def audit_events(engine: str, lines: Iterable[str], provider: str, model: str) -
                     messages[msg_id] = selected
                     if all(isinstance(value, str) and value for value in selected) and selected != (provider, model):
                         bad_models.add(f"{selected[0]}/{selected[1]}")
-            if kind == "message.part.updated" and isinstance(props, dict):
-                part = props.get("part")
+            if kind in ("message.part.updated", "step_finish"):
+                part = props.get("part") if kind == "message.part.updated" and isinstance(props, dict) else event.get("part")
                 if isinstance(part, dict) and part.get("type") == "step-finish":
                     part_id, msg_id = part.get("id"), part.get("messageID")
                     if not isinstance(part_id, str) or not part_id or not isinstance(msg_id, str):
@@ -85,10 +95,19 @@ def audit_events(engine: str, lines: Iterable[str], provider: str, model: str) -
                     # SSE can update the same part multiple times; use its final state once.
                     if part_id in parts and parts[part_id]["messageID"] != msg_id:
                         raise TraceError(f"line {line_no}: part id changed message")
-                    parts[part_id] = {"messageID": msg_id, "tokens": part.get("tokens")}
+                    cost = part.get("cost")
+                    if cost is not None and (type(cost) not in (int, float) or
+                                             not math.isfinite(cost) or cost < 0):
+                        raise TraceError(f"line {line_no}: invalid engine cost")
+                    parts[part_id] = {"messageID": msg_id, "tokens": part.get("tokens"),
+                                      "cost": cost}
             if kind in ("session.error", "error"):
                 errors += 1
     if engine == "opencode":
+        if len(formats) > 1:
+            raise TraceError("mixed OpenCode CLI JSON and SSE event formats")
+        if len(sessions) > 1:
+            raise TraceError("multiple OpenCode CLI sessions in one trace")
         for part in parts.values():
             tokens = part.get("tokens")
             flattened = None
@@ -109,8 +128,10 @@ def audit_events(engine: str, lines: Iterable[str], provider: str, model: str) -
             else:
                 model_identity = "matches_selection"
             observations.append({"granularity": "step", "usage_source": "engine_reported",
-                                 "tokens": usage, "model_identity": model_identity})
+                                 "tokens": usage, "model_identity": model_identity,
+                                 "engine_reported_cost_usd": part["cost"]})
     return {"engine": engine, "selected_provider": provider, "selected_model": model,
+            "trace_format": "codex_jsonl" if engine == "codex" else next(iter(formats), "unknown"),
             "event_count": events, "event_types": counts,
             "usage_observations": observations,
             "model_mismatches": sorted(bad_models), "error_events": errors,
