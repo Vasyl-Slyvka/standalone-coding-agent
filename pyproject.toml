@@ -1,7 +1,7 @@
 [project]
 name = "standalone-coding-agent"
 version = "0.1.0"
-description = "Experimental offline preflight for a provider-agnostic coding agent"
+description = "Experimental offline preflight and benchmark foundation for a provider-agnostic coding agent"
 requires-python = ">=3.10"
 
 [build-system]

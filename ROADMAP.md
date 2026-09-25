@@ -4,7 +4,7 @@
 
 ## Рішення і послідовність
 
-**Поточне виконання по слайсах:** S01 — офлайновий task/Git preflight із фікстурами та [звітом](docs/slices/001-preflight.md); S02 — порівняльний engine/telemetry spike із синтетичними задачами; S03 — ручний provider/model picker і нормалізація usage; S04 — обмежені workspace edits/commands; S05 — verifier/evidence та інтеграційний DoD. Цей поділ деталізує R1–R2 і **не вибирає engine наперед**. S01 реалізований як Python standard-library експеримент; мова фінального engine залишається відкритою.
+**Поточне виконання по слайсах:** S01 — офлайновий task/Git preflight із [звітом](docs/slices/001-preflight.md); S02a — синтетичний стенд і telemetry contract із [звітом](docs/slices/002-benchmark-foundation.md); S02b — фактичний порівняльний engine/telemetry spike; S03 — ручний provider/model picker і нормалізація usage; S04 — обмежені workspace edits/commands; S05 — verifier/evidence та інтеграційний DoD. Цей поділ деталізує R1–R2 і **не вибирає engine наперед**. S01/S02a — Python standard-library експерименти; мова фінального engine залишається відкритою.
 
 ```mermaid
 flowchart TD
