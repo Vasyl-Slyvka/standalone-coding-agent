@@ -1,0 +1,20 @@
+{
+  "run_id": "EXAMPLE-ONLY",
+  "case_id": "simple",
+  "candidate": "not-a-real-engine",
+  "strategy": "cli_wrapper",
+  "provider": "example-provider",
+  "model": "example-model",
+  "endpoint_alias": "example-endpoint",
+  "context_mode": "baseline",
+  "acceptance": "not_evaluated",
+  "elapsed_ms": null,
+  "base_head": "example-base-head",
+  "trace_completeness": "unverified",
+  "trace_basis": null,
+  "calls": [],
+  "actions": [],
+  "checks": [
+    {"name": "tests", "status": "not_run", "exit_code": null}
+  ]
+}
