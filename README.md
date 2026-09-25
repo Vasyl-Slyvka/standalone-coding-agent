@@ -28,6 +28,8 @@ PYTHONPATH=src python -m unittest discover -s tests -v
 
 **S02a — офлайновий benchmark foundation.** [`benchmarks/README.md`](benchmarks/README.md) описує синтетичні Git-фікстури, однаковий протокол для кандидатів і контракт обліку спостережуваних викликів. Команди `python -m benchmarks.fixtures simple` та `PYTHONPATH=src:. python -m sca.benchmark benchmarks/example-record.json` не запускають модель. [Звіт S02a](docs/slices/002-benchmark-foundation.md). Порівняння реальних рушіїв S02b **ще не проводилося**: платний експеримент потребує заданого бюджету й ручного вибору provider/model.
 
+**S02b.0 — статичний аудит.** [Звіт](docs/slices/003-static-engine-audit.md) зіставляє pinned ліцензії, CLI/API seams, usage й permission gates Codex CLI, OpenCode, Aider і mini-SWE-agent. Це аналіз джерел без model calls; фактичне порівняння S02b залишається відкритим.
+
 ## У двох абзацах: що будуємо
 
 Власник обирає репозиторій, чітку задачу, API-провайдера та модель. Агент готує вузькі правки у відокремленій копії, виконує дозволені перевірки й показує diff, логи та використання токенів. Для MVP перевіряються два різні API-провайдери з **ручним** вибором; автоматичного маршрутизатора немає. Облік витрат спирається на фактичні дані провайдера/рушія, а оцінки позначаються як оцінки. Якщо ціна невідома — відображається `UNKNOWN`.
