@@ -1,0 +1,420 @@
+{
+  "date": "2026-09-26",
+  "repository": "Vasyl-Slyvka/standalone-coding-agent",
+  "branch": "main",
+  "initial_remote_head": "9501418fe01b304ed41db5b61a45d28be6a219e4",
+  "reviewed_remote_head": "5d1ea053aa4000f85c28a0c2596652ece94b67ad",
+  "local_implementation_commit": "3ea0378",
+  "verified_files": 56,
+  "all_expected_file_texts_match": true,
+  "comparison": "GitHub visible Code textarea compared with local text, ignoring one terminal LF. No byte-identical download claim; archive/raw download events were unavailable.",
+  "files": [
+    {
+      "path": ".gitignore",
+      "match": true,
+      "ui_length": 147,
+      "local_length": 148,
+      "normalized_text_sha256": "432abb713c435a7c2ae9f3d23bbae15b4aaf5e9026541313a164612465d8f21e"
+    },
+    {
+      "path": "AGENTS.md",
+      "match": true,
+      "ui_length": 7572,
+      "local_length": 7573,
+      "normalized_text_sha256": "11f7d1d99cbb6a8752774a5e2288d2c08e31d1e0a630d00b04d196ea0f18db82"
+    },
+    {
+      "path": "IMPLEMENTATION_MAP.md",
+      "match": true,
+      "ui_length": 13886,
+      "local_length": 13887,
+      "normalized_text_sha256": "5af33341b79bf597f763925c448ae91e8b26afa03a81d5f302a97a67f571b73b"
+    },
+    {
+      "path": "README.md",
+      "match": true,
+      "ui_length": 9390,
+      "local_length": 9391,
+      "normalized_text_sha256": "e426220b43437a117175f5605d89f6c6ee65a5e2089c871b55f59733de0efb94"
+    },
+    {
+      "path": "ROADMAP.md",
+      "match": true,
+      "ui_length": 8497,
+      "local_length": 8498,
+      "normalized_text_sha256": "925b38be52987de1ac9e2a2145af819505e86fc8c87de2ea5633b2ecc4cf8389"
+    },
+    {
+      "path": "VISION.md",
+      "match": true,
+      "ui_length": 8827,
+      "local_length": 8828,
+      "normalized_text_sha256": "c99aa7cb60dc0e1dcb0338936242cc892c01fb3279d59774db707b42e4a2c44c"
+    },
+    {
+      "path": "benchmarks/README.md",
+      "match": true,
+      "ui_length": 6206,
+      "local_length": 6207,
+      "normalized_text_sha256": "a8531f020f3a4383938c45295f2229d78785a938d281792b79b0791ddceb7400"
+    },
+    {
+      "path": "benchmarks/evidence/local-smoke-2026-09-25.json",
+      "match": true,
+      "ui_length": 5708,
+      "local_length": 5709,
+      "normalized_text_sha256": "c8d1f813944c6eb980fe969c5cb1ff41d95a0f7027b83f78fbdc601cfc0ecc4b"
+    },
+    {
+      "path": "benchmarks/example-record.json",
+      "match": true,
+      "ui_length": 515,
+      "local_length": 516,
+      "normalized_text_sha256": "aba0815597c36513293e0881a501662d117435438c6d0bbfeda316c17a5a1de0"
+    },
+    {
+      "path": "benchmarks/fixtures.py",
+      "match": true,
+      "ui_length": 3608,
+      "local_length": 3609,
+      "normalized_text_sha256": "e5124b1ea9f340630295f502641fa764b31f46b7b9ccc884a660f54aa2869d8c"
+    },
+    {
+      "path": "docs/reviews/validation-2026-09-26.json",
+      "match": true,
+      "ui_length": 4432,
+      "local_length": 4433,
+      "normalized_text_sha256": "88db4d9123e32099bfc9f50658fe5754e1706f301c555c3d921221183ce06f7d"
+    },
+    {
+      "path": "docs/slices/001-preflight.md",
+      "match": true,
+      "ui_length": 2290,
+      "local_length": 2291,
+      "normalized_text_sha256": "ba39370d179794db5e0dff7009cbacdd1b0bdd7e7ee2b4c108f69ae435d3cd24"
+    },
+    {
+      "path": "docs/slices/002-benchmark-foundation.md",
+      "match": true,
+      "ui_length": 1792,
+      "local_length": 1793,
+      "normalized_text_sha256": "d3fd32e14bfe6cdf1b3cc09815dbd620160584accfccfef5ce58e3fb1bca2156"
+    },
+    {
+      "path": "docs/slices/003-static-engine-audit.md",
+      "match": true,
+      "ui_length": 10924,
+      "local_length": 10925,
+      "normalized_text_sha256": "805b1723f6a7979db00c5a1688a6f8494a2658c9ba7d0a3210b136ba19449901"
+    },
+    {
+      "path": "docs/slices/004-offline-trace-audit.md",
+      "match": true,
+      "ui_length": 3565,
+      "local_length": 3566,
+      "normalized_text_sha256": "9f208bde3cb3f67fc8f7ae51dbdc03e14560b50766326d5f7539525a21c95f1b"
+    },
+    {
+      "path": "docs/slices/005-free-test-path.md",
+      "match": true,
+      "ui_length": 4303,
+      "local_length": 4304,
+      "normalized_text_sha256": "039d1150e19b7bc0eca5041a920abb0ca53f80a2da4b7547f6647d7351434d2a"
+    },
+    {
+      "path": "docs/slices/006-selection-snapshot.md",
+      "match": true,
+      "ui_length": 2471,
+      "local_length": 2472,
+      "normalized_text_sha256": "bcdec42ef05ed7f564dd0dc8f560bbe9fae28f298d6137c6f6aedfd12a1a2ded"
+    },
+    {
+      "path": "docs/slices/007-usage-gate.md",
+      "match": true,
+      "ui_length": 2492,
+      "local_length": 2493,
+      "normalized_text_sha256": "baa5fe55a323fc7d7ec72a111da6753fc96830dc5215905217ae2ea85b476d02"
+    },
+    {
+      "path": "docs/slices/008-patch-preview.md",
+      "match": true,
+      "ui_length": 2543,
+      "local_length": 2544,
+      "normalized_text_sha256": "dcfe4a507c437e1230ac9b9e71bd9a57b4b94acdf27b0a82d580dc1721027692"
+    },
+    {
+      "path": "docs/slices/009-evidence-audit.md",
+      "match": true,
+      "ui_length": 2636,
+      "local_length": 2637,
+      "normalized_text_sha256": "bf667f05720f555233b7abef5be12d642c01d458603143dd2f49e7bfc319df9a"
+    },
+    {
+      "path": "docs/slices/010-local-engine-smoke.md",
+      "match": true,
+      "ui_length": 6955,
+      "local_length": 6956,
+      "normalized_text_sha256": "44d2cb56fd28872c00b7701bff0b095b1441f69cd76fb8d31f624403a8db5fa0"
+    },
+    {
+      "path": "docs/slices/011-context-pack.md",
+      "match": true,
+      "ui_length": 2254,
+      "local_length": 2255,
+      "normalized_text_sha256": "4dd64c2df0190dce29b28ba115596a7cbbca1692b885a0a621606a04efb50492"
+    },
+    {
+      "path": "pyproject.toml",
+      "match": true,
+      "ui_length": 331,
+      "local_length": 332,
+      "normalized_text_sha256": "010e14545204eff2060289677f5dba3896cb97f72c315d075c9a126e2ea27e20"
+    },
+    {
+      "path": "src/sca/__init__.py",
+      "match": true,
+      "ui_length": 169,
+      "local_length": 170,
+      "normalized_text_sha256": "71583d0c0ec8933f6d1bd670f1b1e15f8480c72a7ccbf8b2034de129e7066bc3"
+    },
+    {
+      "path": "src/sca/__main__.py",
+      "match": true,
+      "ui_length": 1246,
+      "local_length": 1247,
+      "normalized_text_sha256": "e4593d135117968965b0b8df4ac856abe13cf6229b788f19a232b1721a7ba274"
+    },
+    {
+      "path": "src/sca/benchmark.py",
+      "match": true,
+      "ui_length": 9084,
+      "local_length": 9085,
+      "normalized_text_sha256": "a80ef10715a451e247f55c0150237208323fe8a074dc0150ac182b95fc39d639"
+    },
+    {
+      "path": "src/sca/context_pack.py",
+      "match": true,
+      "ui_length": 6189,
+      "local_length": 6190,
+      "normalized_text_sha256": "f15b3c3dd5145ac378536e0ce7d57e3d3b3ebc0fe2cf747982caabc86349d4ba"
+    },
+    {
+      "path": "src/sca/evidence_audit.py",
+      "match": true,
+      "ui_length": 6925,
+      "local_length": 6926,
+      "normalized_text_sha256": "9f80af42684d415203d0c89d928c82af1d6feb2c035ce8071589edd4a673175e"
+    },
+    {
+      "path": "src/sca/patch_preview.py",
+      "match": true,
+      "ui_length": 5767,
+      "local_length": 5768,
+      "normalized_text_sha256": "0dd847f80f05c8ed377cb0ef4fdc765e74aebace044f4de52baf4e7bf1fe1c11"
+    },
+    {
+      "path": "src/sca/preflight.py",
+      "match": true,
+      "ui_length": 5862,
+      "local_length": 5863,
+      "normalized_text_sha256": "7c8df05be12096bc2f13748b0597e4f7580026233d2263b32976ca61af6976a0"
+    },
+    {
+      "path": "src/sca/selection.py",
+      "match": true,
+      "ui_length": 3374,
+      "local_length": 3375,
+      "normalized_text_sha256": "4c9780483655086a5ab536956cc83d00c7b2f86cbb569f89ff23231bfa1e8f17"
+    },
+    {
+      "path": "src/sca/task.py",
+      "match": true,
+      "ui_length": 3482,
+      "local_length": 3483,
+      "normalized_text_sha256": "4e4a0eccddd52ec4ef817674166cac60220f10b89636a6b928be848a5732ca2d"
+    },
+    {
+      "path": "src/sca/trace_audit.py",
+      "match": true,
+      "ui_length": 10022,
+      "local_length": 10023,
+      "normalized_text_sha256": "59cde235218d17a8bbf8a2201c99bfb619c02d8cbcf076237a79a923b5f4bbbf"
+    },
+    {
+      "path": "src/sca/usage_gate.py",
+      "match": true,
+      "ui_length": 6882,
+      "local_length": 6883,
+      "normalized_text_sha256": "0ab349a62a778eeead26fcc993ce52718b7b738ac6051ec2d31ff154d1dd27ec"
+    },
+    {
+      "path": "tasks/example-task.md",
+      "match": true,
+      "ui_length": 464,
+      "local_length": 465,
+      "normalized_text_sha256": "9c53728f2997dbee9366763709d39be4c857567a7845851065cce1434bef6383"
+    },
+    {
+      "path": "tasks/task-S02A.md",
+      "match": true,
+      "ui_length": 1330,
+      "local_length": 1331,
+      "normalized_text_sha256": "423019b40ad8058a564da8a56665e6135a0fa664974734b734c9615b9eb7f867"
+    },
+    {
+      "path": "tasks/task-S02B-OFFLINE-TRACE.md",
+      "match": true,
+      "ui_length": 1418,
+      "local_length": 1419,
+      "normalized_text_sha256": "31a3d460f19dfe05ec8d92d6510110dc79fae9956392303f0acdd9f7d297b8a1"
+    },
+    {
+      "path": "tasks/task-S02B-SOURCE-CHECK.md",
+      "match": true,
+      "ui_length": 1639,
+      "local_length": 1640,
+      "normalized_text_sha256": "0545baf546324f59f22aa416c5ff5bf58eaa58a014d86c595958ab68fc70fd58"
+    },
+    {
+      "path": "tasks/task-S02B-STATIC.md",
+      "match": true,
+      "ui_length": 1563,
+      "local_length": 1564,
+      "normalized_text_sha256": "09453cef355371b91cc3c48a8c9f2dd4773481c3c137bfceaaf839f7554254a0"
+    },
+    {
+      "path": "tasks/task-S03A-SELECTION.md",
+      "match": true,
+      "ui_length": 1624,
+      "local_length": 1625,
+      "normalized_text_sha256": "026f730bcfdc25e20dfd0fe6e94c21dc7dcf5998c7d0aeec6960da9b100d2288"
+    },
+    {
+      "path": "tasks/task-S03B-USAGE-GATE.md",
+      "match": true,
+      "ui_length": 1678,
+      "local_length": 1679,
+      "normalized_text_sha256": "bc54761285c10cd3c8c640ac322c5e29479048b38fe9777eba3836ea8aa2678f"
+    },
+    {
+      "path": "tasks/task-S04A-PATCH-PREVIEW.md",
+      "match": true,
+      "ui_length": 1634,
+      "local_length": 1635,
+      "normalized_text_sha256": "3ca05f62f3322fa166d92dbd6fc5c0703ae913c861d36966c6424210ceab51db"
+    },
+    {
+      "path": "tasks/task-S04B-CONTEXT.md",
+      "match": true,
+      "ui_length": 1715,
+      "local_length": 1716,
+      "normalized_text_sha256": "96508099204c9820296235e628421e1090f3292e0c540011e6209cdebab19575"
+    },
+    {
+      "path": "tasks/task-S05A-EVIDENCE-AUDIT.md",
+      "match": true,
+      "ui_length": 1763,
+      "local_length": 1764,
+      "normalized_text_sha256": "091155d673a85fcf390c2a0d56290625c0905eb78bacd7e6e23e17912a8885ae"
+    },
+    {
+      "path": "tasks/task-S06-REVIEW.md",
+      "match": true,
+      "ui_length": 2122,
+      "local_length": 2123,
+      "normalized_text_sha256": "f2a30ae0151e0686141207e5bd92bf604b9bd5670dfa27001c119d3c8f3ebd29"
+    },
+    {
+      "path": "tests/test_benchmark.py",
+      "match": true,
+      "ui_length": 7834,
+      "local_length": 7835,
+      "normalized_text_sha256": "6fd885ad41a755aa0fe1f9000a15c4391062a68b7f3b937267c791406ee38ff7"
+    },
+    {
+      "path": "tests/test_context_pack.py",
+      "match": true,
+      "ui_length": 5317,
+      "local_length": 5318,
+      "normalized_text_sha256": "aaf0cbf5aeb70b3ccd8fdbdb271fd90e545c0cd324aa0083017ef24a7158cf55"
+    },
+    {
+      "path": "tests/test_evidence_audit.py",
+      "match": true,
+      "ui_length": 6083,
+      "local_length": 6084,
+      "normalized_text_sha256": "12adbbc73812a2eb35ce23820b1025620a3f0ed5f2e1ccfb87682ecd8e8739df"
+    },
+    {
+      "path": "tests/test_patch_preview.py",
+      "match": true,
+      "ui_length": 6239,
+      "local_length": 6240,
+      "normalized_text_sha256": "135f9833400a1da136069b19b259fd0a0c409c3930224bb52feb81598bcde52a"
+    },
+    {
+      "path": "tests/test_preflight.py",
+      "match": true,
+      "ui_length": 5111,
+      "local_length": 5112,
+      "normalized_text_sha256": "5265a5b7e3a4ec6dbcd7ee9dbaba4eafc05ade8962dba3c384f241dd783d2658"
+    },
+    {
+      "path": "tests/test_repository_contracts.py",
+      "match": true,
+      "ui_length": 827,
+      "local_length": 828,
+      "normalized_text_sha256": "344bcd25618fe279c57a498083e9169ddfa322cb8e5c1ae8b2be4eb6d72655e8"
+    },
+    {
+      "path": "tests/test_selection.py",
+      "match": true,
+      "ui_length": 3501,
+      "local_length": 3502,
+      "normalized_text_sha256": "bfc591ce10d68e4ee1c14cbe1e120a127c73d63ad8d9502640672ba879cbf4eb"
+    },
+    {
+      "path": "tests/test_trace_audit.py",
+      "match": true,
+      "ui_length": 7803,
+      "local_length": 7804,
+      "normalized_text_sha256": "44dc69a7c734a2c3c0e55745a15d55529fe0fe9feef340b9903d621bb4ea0545"
+    },
+    {
+      "path": "tests/test_usage_gate.py",
+      "match": true,
+      "ui_length": 4817,
+      "local_length": 4818,
+      "normalized_text_sha256": "f303c39647fc4b5460671033468be16c91e79c21f8ebf82ba76bd7f632ae4c84"
+    },
+    {
+      "path": "docs/reviews/2026-09-26-full-review.md",
+      "match": true,
+      "ui_length": 11731,
+      "local_length": 11732,
+      "normalized_text_sha256": "c65da2f190db73004486e6879015b14aaf1e6640e53731be7b8e35ea966a18b0"
+    },
+    {
+      "path": "docs/reviews/unit-tests-2026-09-26.txt",
+      "match": true,
+      "ui_length": 8927,
+      "local_length": 8928,
+      "normalized_text_sha256": "e840e27f0e893f9c045db9325c6b9f5bc5426285a56521edfaa9a4df979bca0c"
+    }
+  ],
+  "remote_text_test_run": {
+    "command": "PYTHONPATH=src:. python3 -m unittest discover -s tests -v",
+    "directory": "/workspace/scratch/5da47a8772fa/sca_remote_review",
+    "exit_code": 0,
+    "tests": 62,
+    "output_sha256": "312a562132ac6c52622a2dc4b5fb11808fc7f4319bd3c2839d141af1c84c8fdd",
+    "interpretation": "Local execution using text read back from GitHub UI; not GitHub Actions execution.",
+    "initial_extraction_issue": "First filesystem export was incomplete (missing files), so its import failure was not treated as code evidence. Complete 54-file JSON export restored before this passing run."
+  },
+  "scope_note": "This record is appended after the 56-file comparison and is not included in its own manifest. Model/API tests remain deferred as described in the full review.",
+  "final_relative_markdown_links": {
+    "checked": 76,
+    "missing": 0
+  },
+  "final_diff_whitespace_check_exit_code": 0
+}
