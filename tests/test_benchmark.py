@@ -5,6 +5,8 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
+import os
 
 from benchmarks.fixtures import CASES, make_fixture
 from sca.benchmark import RecordError, assess
@@ -19,7 +21,7 @@ def record() -> dict:
         "acceptance": "failed", "elapsed_ms": 150,
         "base_head": "synthetic-head", "trace_completeness": "unverified",
         "trace_basis": None,
-        "calls": [{"provider": "test-provider", "model": "test-model",
+        "calls": [{"call_id": "call-1", "provider": "test-provider", "model": "test-model",
                    "endpoint_alias": "test-endpoint",
                    "usage_source": "provider_reported", "input_tokens": 100,
                    "output_tokens": 20, "cache_read_tokens": 40,
@@ -29,6 +31,14 @@ def record() -> dict:
 
 
 class FixtureTests(unittest.TestCase):
+    def test_inherited_git_directory_cannot_redirect_fixture_writes(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            external = Path(tmp) / "must-not-be-created.git"
+            with patch.dict(os.environ, {"GIT_DIR": str(external), "GIT_WORK_TREE": tmp}):
+                root, _ = make_fixture("simple", Path(tmp) / "fixture")
+            self.assertTrue((root / ".git").is_dir())
+            self.assertFalse(external.exists())
+
     def test_fixture_baselines_fail_intentionally_and_are_isolated(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             for case in CASES:
@@ -77,6 +87,36 @@ class FixtureTests(unittest.TestCase):
 
 
 class ObservationTests(unittest.TestCase):
+    def test_nonfinite_cost_and_duplicate_calls_are_rejected(self) -> None:
+        for value in (float("nan"), float("inf"), -float("inf")):
+            observed = record()
+            observed["calls"][0].update(cost_usd=value, price_source="test", cost_provenance="estimate")
+            with self.subTest(value=value), self.assertRaises(RecordError):
+                assess(observed)
+        observed = record()
+        observed["calls"] *= 2
+        with self.assertRaisesRegex(RecordError, "duplicate call_id"):
+            assess(observed)
+
+    def test_tiny_cost_is_not_rounded_to_zero_and_acceptance_is_unverified(self) -> None:
+        observed = record()
+        observed["calls"][0].update(cost_usd=0.00000001, price_source="test", cost_provenance="estimate")
+        result = assess(observed)
+        self.assertEqual(result["cost_usd"], "0.00000001")
+        self.assertFalse(result["task_accepted"])
+        observed["checks"][0]["exit_code"] = -9
+        self.assertEqual(assess(observed)["checks"]["failed"], 1)
+
+    def test_benchmark_cli_rejects_duplicate_keys_and_nonfinite_json(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "record.json"
+            for text in ('{"model":"one","model":"two"}', '{"cost":NaN}'):
+                path.write_text(text)
+                result = subprocess.run([sys.executable, "-m", "sca.benchmark", str(path)],
+                                        capture_output=True, text=True)
+                self.assertEqual(result.returncode, 2)
+                self.assertFalse(result.stdout)
+
     def test_unknown_cost_is_not_zero_and_cache_is_not_added(self) -> None:
         result = assess(record())
         self.assertEqual(result["cost_usd"], "UNKNOWN")

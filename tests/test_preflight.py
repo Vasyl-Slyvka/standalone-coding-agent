@@ -5,6 +5,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import os
 
 from sca.preflight import inspect
 
@@ -104,6 +105,22 @@ class PreflightTests(unittest.TestCase):
         result = inspect(self.repo, self.task)
         self.assertEqual(result.status, "INSPECTED")
         self.assertFalse(marker.exists())
+
+    def test_git_status_does_not_execute_configured_content_filter(self) -> None:
+        marker = self.root / "filter-ran"
+        hook = self.root / "clean.sh"
+        hook.write_text('#!/bin/sh\ntouch "' + str(marker) + '"\ncat\n')
+        hook.chmod(0o755)
+        (self.repo / ".gitattributes").write_text("*.py filter=spy\n")
+        self.git("config", "filter.spy.clean", str(hook))
+        self.git("config", "filter.spy.required", "true")
+        target = self.repo / "src/app.py"
+        target.write_text("print('other')\n")  # Same size forces a content comparison.
+        os.utime(target, (1_700_000_000, 1_700_000_000))
+        result = inspect(self.repo, self.task)
+        self.assertEqual(result.status, "BLOCKED")
+        self.assertFalse(marker.exists())
+        self.assertEqual(target.read_text(), "print('other')\n")
 
     def test_non_git_directory_blocks(self) -> None:
         result = inspect(self.root, self.task)

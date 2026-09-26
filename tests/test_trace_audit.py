@@ -11,6 +11,35 @@ def jsonl(*events: dict) -> list[str]:
 
 
 class TraceAuditTests(unittest.TestCase):
+    def test_sse_cannot_merge_two_sessions(self) -> None:
+        events = [{"type": "message.part.updated", "properties": {"part": {
+            "type": "step-finish", "id": f"p{i}", "messageID": f"m{i}",
+            "sessionID": session}}} for i, session in enumerate(("one", "two"))]
+        with self.assertRaisesRegex(TraceError, "multiple OpenCode sessions"):
+            audit_events("opencode", jsonl(*events), "p", "m")
+
+    def test_ambiguous_or_malformed_completed_events_are_rejected(self) -> None:
+        for line in ('{"type":"step_start","type":"step_finish"}',
+                     '{"type":"step_finish","part":null}',
+                     '{"type":"step_finish","cost":NaN}'):
+            with self.subTest(line=line), self.assertRaises(TraceError):
+                audit_events("opencode", [line], "p", "m")
+        part = {"type": "step-finish", "id": "p", "messageID": "m",
+                "tokens": {"input": 5}}
+        with self.assertRaisesRegex(TraceError, "conflicting completed step"):
+            audit_events("opencode", jsonl(
+                {"type": "step_finish", "part": part},
+                {"type": "step_finish", "part": {**part, "tokens": {"input": 1}}}), "p", "m")
+
+    def test_bad_sse_usage_cannot_be_hidden_by_a_later_update(self) -> None:
+        part = {"type": "step-finish", "id": "p", "messageID": "m"}
+        with self.assertRaisesRegex(TraceError, "invalid token count"):
+            audit_events("opencode", jsonl(
+                {"type": "message.part.updated", "properties": {"part": {**part,
+                 "tokens": {"input": -1}}}},
+                {"type": "message.part.updated", "properties": {"part": {**part,
+                 "tokens": {"input": 1}}}}), "p", "m")
+
     def test_codex_turn_is_not_reported_as_api_call(self) -> None:
         result = audit_events("codex", jsonl(
             {"type": "thread.started", "thread_id": "test"},

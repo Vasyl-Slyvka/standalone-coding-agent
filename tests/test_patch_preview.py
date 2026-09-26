@@ -115,6 +115,15 @@ class PreviewTests(unittest.TestCase):
         self.assertFalse(result["after_final_newline"])
         self.assertTrue(result["before_final_newline"])
 
+    def test_crlf_only_change_has_a_visible_diff(self) -> None:
+        result = preview(self.repo, self.task,
+                         {**self.candidate, "replacement": "print('hello')\r\n"})
+        self.assertTrue(result["changed"])
+        self.assertTrue(result["diff"])
+        self.assertIn("\\r", json.dumps(result["diff"]))
+        self.assertFalse(result["diff_applicable"])
+        self.assertEqual((self.repo / "src/app.py").read_bytes(), self.original)
+
     def test_malformed_content_and_cli_duplicate_field_block(self) -> None:
         for value in (b"x", "\x00", "a" * 131_073, "\ud800"):
             candidate = {**self.candidate, "replacement": value}

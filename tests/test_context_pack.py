@@ -5,6 +5,9 @@ from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
+import os
+import hashlib
 
 from sca.context_pack import ContextError, build_pack
 from sca.task import Task
@@ -32,6 +35,8 @@ class ContextPackTests(unittest.TestCase):
         result = build_pack(task(), self.repo, "greet name", ["other.py", "greet.py"], 1000)
         self.assertEqual(result["mandatory"]["must_not"], ["Never publish a secret."])
         self.assertEqual(result["mandatory"]["acceptance"], ["Return a reviewed diff."])
+        self.assertEqual(result["mandatory"]["scope"], ["src"])
+        self.assertEqual(result["mandatory"]["checks"], ["python3 -m unittest"])
         self.assertEqual([item["path"] for item in result["optional"]], ["greet.py"])
         self.assertIn("1: def greet(name)", result["optional"][0]["excerpt"])
         self.assertEqual(result["used_bytes"], len(json.dumps(result, ensure_ascii=False,
@@ -39,6 +44,28 @@ class ContextPackTests(unittest.TestCase):
         self.assertLessEqual(result["used_bytes"], 1000)
         self.assertEqual(subprocess.run(["git", "-C", str(self.repo), "status", "--porcelain"],
                           capture_output=True, check=True).stdout, self.before)
+
+    def test_git_hooks_environment_and_index_are_isolated(self) -> None:
+        hook = self.repo / "fsmonitor.sh"
+        marker = self.repo / "hook-executed"
+        hook.write_text('#!/bin/sh\ntouch "' + str(marker) + '"\nprintf "token\\0"\n')
+        hook.chmod(0o755)
+        subprocess.run(["git", "-C", str(self.repo), "config", "core.fsmonitor", str(hook)], check=True)
+        index = self.repo / ".git/index"
+        before = hashlib.sha256(index.read_bytes()).hexdigest()
+        with patch.dict(os.environ, {"GIT_DIR": str(self.repo / "missing.git")}):
+            result = build_pack(task(), self.repo, "greet", ["greet.py"], 2000)
+        self.assertEqual(len(result["optional"]), 1)
+        self.assertFalse(marker.exists())
+        self.assertEqual(hashlib.sha256(index.read_bytes()).hexdigest(), before)
+
+    def test_utf8_budget_and_order_are_deterministic(self) -> None:
+        (self.repo / "greet.py").write_text("# привіт\ndef greet(name):\n    return name\n", encoding="utf-8")
+        first = build_pack(task(), self.repo, "привіт greet", ["greet.py", "other.py"], 2000)
+        second = build_pack(task(), self.repo, "привіт greet", ["other.py", "greet.py"], 2000)
+        self.assertEqual(first, second)
+        self.assertEqual(first["used_bytes"], len(json.dumps(first, ensure_ascii=False,
+                         separators=(",", ":")).encode("utf-8")))
 
     def test_budget_drops_optional_but_never_mandatory(self) -> None:
         minimum = build_pack(task(), self.repo, "greet", [], 1000)["used_bytes"]
