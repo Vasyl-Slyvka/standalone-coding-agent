@@ -30,21 +30,23 @@ PYTHONPATH=src python -m unittest discover -s tests -v
 
 **S02b.0 — статичний аудит.** [Звіт](docs/slices/003-static-engine-audit.md) зіставляє pinned ліцензії, CLI/API seams, usage й permission gates Codex CLI, OpenCode, Aider і mini-SWE-agent. Це аналіз джерел без model calls; фактичне порівняння S02b залишається відкритим.
 
-**S02b.1 — офлайновий аналізатор подій.** [Звіт і команди](docs/slices/004-offline-trace-audit.md) описують читання JSONL Codex/OpenCode, дедуплікацію кроків і перевірку явного model mismatch. Turn/step usage не дорівнює повному per-call trace. Реальних рушіїв і API ще не запускали.
+**S02b.1 — офлайновий аналізатор подій.** [Звіт і команди](docs/slices/004-offline-trace-audit.md) описують читання JSONL Codex/OpenCode, дедуплікацію кроків і перевірку явного model mismatch. Turn/step usage не дорівнює повному per-call trace. Сам аналізатор не запускає рушії чи API; пізніші локальні запуски описано в S02b.3.
 
-**S02b.2 — звірка з вихідним кодом.** [Звіт і безплатний шлях тестування](docs/slices/005-free-test-path.md) виправляють формат `opencode run --format json`, відокремлюють його від SSE та описують обмежений локальний тест без API-ключів. Власник зараз має бюджет €0; локальна модель, ОС і рушій для живого тесту ще не обрані.
+**S02b.2 — звірка з вихідним кодом.** [Звіт і безплатний шлях тестування](docs/slices/005-free-test-path.md) виправляють формат `opencode run --format json`, відокремлюють його від SSE та описують обмежений локальний тест без API-ключів. Бюджет — €0. Пізніше для обмеженого S02b.3 використано Linux CPU, OpenCode та локальну Qwen; вибір рушія MVP залишається відкритим.
 
 **S02b.3 — живий локальний smoke test.** [Звіт](docs/slices/010-local-engine-smoke.md): OpenCode `v1.18.32` звернувся до локального llama.cpp/Qwen3 0.6B на синтетичному репозиторії, прочитав файл без змін. Локальний проксі підтвердив три HTTP-запити до тієї самої моделі, але потік CLI — тільки два кроки; допоміжний запит без tools не входить у step usage. Коректну кінцеву відповідь, порівняння рушіїв і gate R1 не підтверджено. Це безкоштовний локальний тест, не вибір engine чи двох API-провайдерів.
 
-**S03a — офлайновий знімок ручного вибору.** [Звіт і формат конфігурації](docs/slices/006-selection-snapshot.md) описують явні provider/model/endpoint alias та відхилення неоднозначних значень. `PYTHONPATH=src python3 -m sca.selection /path/to/selection.json` нічого не викликає й позначає вибір `UNVERIFIED_SELECTION`. Живий S02b **відкладений**, перехід R1 → R2 не пройдено; повний S03 не виконаний.
+**S03a — офлайновий знімок ручного вибору.** [Звіт і формат конфігурації](docs/slices/006-selection-snapshot.md) описують явні provider/model/endpoint alias та відхилення неоднозначних значень. `PYTHONPATH=src python3 -m sca.selection /path/to/selection.json` нічого не викликає й позначає вибір `UNVERIFIED_SELECTION`. Повне порівняння S02b та два API-провайдери **відкладені**; локальний smoke test уже проведено. Перехід R1 → R2 не пройдено; повний S03 не виконаний.
 
-**S03b — офлайновий облік і м’яка зупинка.** [Звіт і вхідний контракт](docs/slices/007-usage-gate.md) описують `PYTHONPATH=src python3 -m sca.usage_gate /path/to/usage-record.json`: рішення перед *наступним контрольованим кроком* з видимих синтетичних записів. Невідома вартість лишається `UNKNOWN`, а грошовий ліміт не подається як жорстка гарантія. Реальних API/model calls не було; R1 gate залишається відкритим.
+**S03b — офлайновий облік і м’яка зупинка.** [Звіт і вхідний контракт](docs/slices/007-usage-gate.md) описують `PYTHONPATH=src python3 -m sca.usage_gate /path/to/usage-record.json`: рішення перед *наступним контрольованим кроком* з видимих синтетичних записів. Невідома вартість лишається `UNKNOWN`, а грошовий ліміт не подається як жорстка гарантія. Цей модуль працює лише з поданими записами й не керує справжніми model calls; R1 gate залишається відкритим.
 
 **S04a — офлайнове прев’ю правки.** [Звіт і формат candidate](docs/slices/008-patch-preview.md) описують `PYTHONPATH=src python3 -m sca.patch_preview /path/to/test-repo /path/to/task.md /path/to/candidate.json`. Команда читає чистий синтетичний Git-репозиторій, звіряє scope, HEAD і SHA-256 старого файлу й показує diff; **файлів не змінює та repo policy не перевіряє**. Повний S04 і R1 gate відкриті.
 
 **S04b — офлайновий добір контексту.** [Звіт і команда](docs/slices/011-context-pack.md) описують збереження повного must-not/acceptance та добір лише явно перелічених Git-файлів у ліміті UTF-8 байтів. Це не токенізатор і не підтвердження authoritative sources або економії.
 
 **S05a — офлайновий аудит метаданих доказів.** [Звіт і вхідний контракт](docs/slices/009-evidence-audit.md) описують `PYTHONPATH=src python3 -m sca.evidence_audit /path/to/task.md /path/to/record.json`: звірку заявлених перевірок і критеріїв з task spec. Навіть усі `passed` дають лише `STRUCTURALLY_COMPLETE_UNVERIFIED`, `task_accepted=false`: команди й журнали не перевірено фактично. Повний S05 і R1 gate відкриті.
+
+**S06 — повне рев’ю 26.09.2026.** [Звіт, матриця CA-R01…09 і обох DoD](docs/reviews/2026-09-26-full-review.md). Виправлено виконання Git-фільтрів/fsmonitor, неоднозначні Scope, облік вартості, змішані traces і невидимі зміни newline; збережено [очищені докази локального тесту](benchmarks/evidence/local-smoke-2026-09-25.json).
 
 ## У двох абзацах: що будуємо
 
