@@ -89,7 +89,9 @@ def preview(repo: Path, task_file: Path, candidate: dict[str, Any]) -> dict[str,
         before = before_bytes.decode("utf-8")
     except UnicodeError as exc:
         raise PreviewError("Existing file is not UTF-8") from exc
-    delta = difflib.unified_diff(before.splitlines(), replacement.splitlines(),
+    # Split only on LF: splitlines() silently erases CRLF/CR and Unicode separators.
+    # JSON output escapes retained CR characters, keeping byte-only changes visible.
+    delta = difflib.unified_diff(before.split("\n"), replacement.split("\n"),
                                  fromfile="a/" + path, tofile="b/" + path, lineterm="")
     return {
         "status": "PREVIEW_ONLY",
@@ -100,6 +102,8 @@ def preview(repo: Path, task_file: Path, candidate: dict[str, Any]) -> dict[str,
         "replacement_sha256": hashlib.sha256(after_bytes).hexdigest(),
         "changed": before_bytes != after_bytes,
         "diff": "\n".join(delta),
+        "diff_applicable": False,
+        "diff_format": "review display only; CR characters retained and escaped in JSON",
         "before_final_newline": before.endswith("\n"),
         "after_final_newline": replacement.endswith("\n"),
         "note": "Read-only preview; no policy authorization, workspace isolation or edit was performed.",

@@ -15,13 +15,27 @@ class GitError(ValueError):
 
 
 def _git(directory: Path, *arguments: str) -> bytes:
+    env = {**{key: value for key, value in os.environ.items() if not key.startswith("GIT_")},
+           "GIT_OPTIONAL_LOCKS": "0", "GIT_TERMINAL_PROMPT": "0"}
+    command = ["git", "-c", "core.fsmonitor=false", "-C", str(directory)]
     try:
+        # Even `git status` can execute a configured clean/process filter while
+        # hashing a same-size changed file. Disable every discovered filter for
+        # this process; repository/global configuration is never rewritten.
+        config = subprocess.run(command + ["config", "--null", "--name-only", "--get-regexp",
+                                           r"^filter\..*\.(clean|smudge|process|required)$"],
+                                capture_output=True, timeout=10, env=env)
+        if config.returncode not in (0, 1):
+            raise GitError("Cannot inspect Git content filters")
+        for raw_key in sorted(set(config.stdout.split(b"\0")) - {b""}):
+            key = raw_key.decode("utf-8")
+            command.extend(["-c", key + ("=false" if key.endswith(".required") else "=")])
         result = subprocess.run(
-            ["git", "-c", "core.fsmonitor=false", "-C", str(directory), *arguments],
+            [*command, *arguments],
             capture_output=True,
             check=False,
             timeout=10,
-            env={**os.environ, "GIT_OPTIONAL_LOCKS": "0"},
+            env=env,
         )
     except (OSError, subprocess.TimeoutExpired) as exc:
         raise GitError(f"Git inspection unavailable: {exc}") from exc
@@ -51,7 +65,8 @@ def _status_paths(root: Path) -> tuple[str, ...]:
 
 
 def _scope_path(root: Path, raw: str) -> str:
-    if not raw or raw.strip() != raw or "\\" in raw or any(c in raw for c in "*?[]"):
+    if not raw or raw.strip() != raw or "\\" in raw or any(c in raw for c in "*?[]") \
+            or any(ord(c) < 32 or ord(c) == 127 for c in raw):
         raise TaskError(f"Unsafe or unsupported Scope path: {raw!r}")
     value = raw.rstrip("/")
     parts = value.split("/")

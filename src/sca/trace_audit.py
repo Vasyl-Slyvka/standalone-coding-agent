@@ -17,6 +17,19 @@ class TraceError(ValueError):
     """A JSONL trace is invalid or has conflicting event identities."""
 
 
+def _unique_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise TraceError(f"Duplicate field: {key}")
+        result[key] = value
+    return result
+
+
+def _invalid_constant(value: str) -> None:
+    raise TraceError(f"Non-finite JSON number: {value}")
+
+
 def _tokens(data: Any, keys: tuple[str, ...]) -> dict[str, int | None]:
     if not isinstance(data, dict):
         return {key: None for key in keys}
@@ -48,7 +61,8 @@ def audit_events(engine: str, lines: Iterable[str], provider: str, model: str) -
         if not line.strip():
             continue
         try:
-            event = json.loads(line)
+            event = json.loads(line, object_pairs_hook=_unique_pairs,
+                               parse_constant=_invalid_constant)
         except json.JSONDecodeError as exc:
             raise TraceError(f"line {line_no}: invalid JSON") from exc
         if not isinstance(event, dict) or not isinstance(event.get("type"), str):
@@ -67,11 +81,19 @@ def audit_events(engine: str, lines: Iterable[str], provider: str, model: str) -
                                      "tokens": usage, "model_identity": "not_in_event"})
         else:
             props = event.get("properties")
+            # CLI stores the session on the envelope; SSE stores it on info/part.
+            holders = [event]
+            if isinstance(props, dict):
+                holders.extend([props, props.get("info"), props.get("part")])
+            holders.append(event.get("part"))
+            for holder in holders:
+                if isinstance(holder, dict) and "sessionID" in holder:
+                    session = holder["sessionID"]
+                    if not isinstance(session, str) or not session:
+                        raise TraceError(f"line {line_no}: invalid session identity")
+                    sessions.add(session)
             if kind in ("step_finish", "step_start", "tool_use"):
                 formats.add("cli_json")
-                session = event.get("sessionID")
-                if isinstance(session, str) and session:
-                    sessions.add(session)
             if kind in ("message.updated", "message.part.updated"):
                 formats.add("sse")
             if kind == "message.updated" and isinstance(props, dict):
@@ -88,17 +110,26 @@ def audit_events(engine: str, lines: Iterable[str], provider: str, model: str) -
                         bad_models.add(f"{selected[0]}/{selected[1]}")
             if kind in ("message.part.updated", "step_finish"):
                 part = props.get("part") if kind == "message.part.updated" and isinstance(props, dict) else event.get("part")
+                if kind == "step_finish" and (not isinstance(part, dict) or part.get("type") != "step-finish"):
+                    raise TraceError(f"line {line_no}: malformed step_finish")
                 if isinstance(part, dict) and part.get("type") == "step-finish":
                     part_id, msg_id = part.get("id"), part.get("messageID")
-                    if not isinstance(part_id, str) or not part_id or not isinstance(msg_id, str):
+                    if not isinstance(part_id, str) or not part_id or not isinstance(msg_id, str) or not msg_id:
                         raise TraceError(f"line {line_no}: step-finish lacks id/messageID")
                     # SSE can update the same part multiple times; use its final state once.
                     if part_id in parts and parts[part_id]["messageID"] != msg_id:
                         raise TraceError(f"line {line_no}: part id changed message")
                     cost = part.get("cost")
                     if cost is not None and (type(cost) not in (int, float) or
-                                             not math.isfinite(cost) or cost < 0):
+                                             (type(cost) is float and not math.isfinite(cost)) or cost < 0):
                         raise TraceError(f"line {line_no}: invalid engine cost")
+                    tokens = part.get("tokens")
+                    _tokens(tokens, ("input", "output", "reasoning", "total"))
+                    if isinstance(tokens, dict):
+                        _tokens(tokens.get("cache"), ("read", "write"))
+                    if kind == "step_finish" and part_id in parts and (
+                            parts[part_id]["tokens"] != tokens or parts[part_id]["cost"] != cost):
+                        raise TraceError(f"line {line_no}: conflicting completed step")
                     parts[part_id] = {"messageID": msg_id, "tokens": part.get("tokens"),
                                       "cost": cost}
             if kind in ("session.error", "error"):
@@ -107,7 +138,7 @@ def audit_events(engine: str, lines: Iterable[str], provider: str, model: str) -
         if len(formats) > 1:
             raise TraceError("mixed OpenCode CLI JSON and SSE event formats")
         if len(sessions) > 1:
-            raise TraceError("multiple OpenCode CLI sessions in one trace")
+            raise TraceError("multiple OpenCode sessions in one trace")
         for part in parts.values():
             tokens = part.get("tokens")
             flattened = None
@@ -148,8 +179,11 @@ def main() -> int:
     parser.add_argument("--model", required=True)
     args = parser.parse_args()
     try:
-        with args.trace.open(encoding="utf-8") as stream:
-            result = audit_events(args.engine, stream, args.provider, args.model)
+        with args.trace.open("rb") as stream:
+            raw = stream.read(8_388_609)
+        if len(raw) > 8_388_608:
+            raise TraceError("Trace exceeds 8 MiB; select a bounded single-session trace")
+        result = audit_events(args.engine, raw.decode("utf-8").splitlines(), args.provider, args.model)
     except (OSError, UnicodeError, TraceError) as exc:
         parser.exit(2, f"INVALID TRACE: {exc}\n")
     print(json.dumps(result, ensure_ascii=False, indent=2))

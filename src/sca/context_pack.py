@@ -11,9 +11,9 @@ import hashlib
 import json
 from pathlib import Path, PurePosixPath
 import re
-import subprocess
 import sys
 
+from .preflight import GitError, _git
 from .task import Task, TaskError, parse_task
 
 
@@ -39,14 +39,12 @@ def _final_size(value: dict) -> int:
 
 def _tracked(repo: Path) -> set[str]:
     try:
-        root = subprocess.run(["git", "-C", str(repo), "rev-parse", "--show-toplevel"],
-                              check=True, capture_output=True, text=True, timeout=5).stdout.strip()
+        root = _git(repo, "rev-parse", "--show-toplevel").decode("utf-8").strip()
         if Path(root).resolve() != repo.resolve():
             raise ContextError("repo must be the Git root")
-        result = subprocess.run(["git", "-C", str(repo), "ls-files", "--cached", "-z"],
-                                check=True, capture_output=True, timeout=5)
-        return {name.decode("utf-8") for name in result.stdout.split(b"\0") if name}
-    except (OSError, subprocess.SubprocessError, UnicodeError) as exc:
+        result = _git(repo, "ls-files", "--cached", "-z")
+        return {name.decode("utf-8") for name in result.split(b"\0") if name}
+    except (OSError, GitError, UnicodeError) as exc:
         raise ContextError(f"Cannot inspect tracked files: {exc}") from exc
 
 
@@ -81,7 +79,9 @@ def build_pack(task: Task, repo: Path, query: str, candidates: list[str], budget
         raise ContextError("query must contain 1-256 characters")
     if len(candidates) > _MAX_CANDIDATES or len(candidates) != len(set(candidates)):
         raise ContextError("At most 64 distinct candidate paths are allowed")
-    mandatory = {"task_id": task.identifier, "must_do": list(task.must_do),
+    mandatory = {"task_id": task.identifier, "branch": task.branch,
+                 "scope": list(task.scope), "sources": list(task.sources),
+                 "checks": list(task.checks), "must_do": list(task.must_do),
                  "must_not": list(task.must_not), "acceptance": list(task.acceptance),
                  "stop_rule": task.stop_rule}
     result = {"schema_version": 1, "mandatory": mandatory, "optional": [],

@@ -7,6 +7,7 @@ provider or gateway logs are needed for that separate comparison.
 from __future__ import annotations
 
 import argparse
+from decimal import Decimal, localcontext
 import json
 from pathlib import Path
 from typing import Any
@@ -14,6 +15,19 @@ from typing import Any
 
 class RecordError(ValueError):
     """The observed run record is incomplete or contradicts its model choice."""
+
+
+def _unique_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise RecordError(f"Duplicate field: {key}")
+        result[key] = value
+    return result
+
+
+def _invalid_constant(value: str) -> None:
+    raise RecordError(f"Non-finite JSON number: {value}")
 
 
 def _nonnegative_int(value: Any, field: str) -> int:
@@ -50,14 +64,21 @@ def assess(record: dict[str, Any]) -> dict[str, Any]:
     checks = _list(record.get("checks"), "checks")
     if record.get("trace_completeness") not in ("unverified", "correlated"):
         raise RecordError("trace_completeness must be unverified or correlated")
-    if record["trace_completeness"] == "correlated" and not record.get("trace_basis"):
+    if record["trace_completeness"] == "correlated" and (
+            not isinstance(record.get("trace_basis"), str) or not record["trace_basis"].strip()):
         raise RecordError("A correlated trace needs a documented independent basis")
 
     totals = {"input_tokens": 0, "output_tokens": 0}
     unknown = {"input_tokens": False, "output_tokens": False}
-    cost = 0.0
+    costs: list[Decimal] = []
     cost_unknown = False
+    call_ids: set[str] = set()
     for index, call in enumerate(calls):
+        call_id = call.get("call_id")
+        if not isinstance(call_id, str) or not call_id.strip() or call_id != call_id.strip() \
+                or call_id in call_ids:
+            raise RecordError(f"call {index}: missing or duplicate call_id")
+        call_ids.add(call_id)
         if (call.get("provider"), call.get("model"), call.get("endpoint_alias")) != (
                 record["provider"], record["model"], record["endpoint_alias"]):
             raise RecordError(f"call {index}: provider/model/endpoint differs from the manual selection")
@@ -69,17 +90,23 @@ def assess(record: dict[str, Any]) -> dict[str, Any]:
                 unknown[field] = True
             else:
                 totals[field] += _nonnegative_int(value, f"call {index} {field}")
-        if call["usage_source"] == "unknown" and any(call.get(f) is not None for f in totals):
+        if call["usage_source"] == "unknown" and any(call.get(f) is not None for f in (
+                *totals, "cache_read_tokens", "cache_write_tokens", "reasoning_tokens")):
             raise RecordError(f"call {index}: token counts need a stated provenance")
         usd = call.get("cost_usd")
         if usd is None:
             cost_unknown = True
+            if call.get("price_source") is not None or call.get("cost_provenance") not in (None, "unknown"):
+                raise RecordError(f"call {index}: unknown cost cannot have a price or known provenance")
         elif (type(usd) not in (float, int) or usd < 0
               or not isinstance(call.get("price_source"), str) or not call["price_source"].strip()
               or call.get("cost_provenance") not in ("provider_reported", "engine_reported", "estimate")):
             raise RecordError(f"call {index}: cost needs a nonnegative value, price_source and cost_provenance")
         else:
-            cost += usd
+            amount = Decimal(str(usd))
+            if not amount.is_finite():
+                raise RecordError(f"call {index}: cost must be finite")
+            costs.append(amount)
         # Cache/reasoning counters are informational subsets unless a provider
         # documents otherwise. They are deliberately not added to totals.
         for optional in ("cache_read_tokens", "cache_write_tokens", "reasoning_tokens"):
@@ -93,13 +120,19 @@ def assess(record: dict[str, Any]) -> dict[str, Any]:
             raise RecordError(f"check {index}: missing name")
         exit_code = check.get("exit_code")
         if check["status"] in ("passed", "failed"):
-            _nonnegative_int(exit_code, f"check {index} exit_code")
+            if type(exit_code) is not int:
+                raise RecordError(f"check {index}: exit_code must be an integer")
             if (check["status"] == "passed") != (exit_code == 0):
                 raise RecordError(f"check {index}: status contradicts exit_code")
         elif exit_code is not None:
             raise RecordError(f"check {index}: a check not run has no exit_code")
 
     observed = bool(calls)
+    # Use enough precision for all supplied decimal digits, including tiny costs.
+    with localcontext() as context:
+        context.prec = max(28, sum(len(value.as_tuple().digits) + abs(value.as_tuple().exponent)
+                                   for value in costs) + 2)
+        cost = sum(costs, Decimal(0))
     return {
         "run_id": record["run_id"],
         "case_id": record["case_id"],
@@ -109,13 +142,14 @@ def assess(record: dict[str, Any]) -> dict[str, Any]:
         "endpoint_alias": record["endpoint_alias"],
         "context_mode": record["context_mode"],
         "acceptance": record["acceptance"],
+        "task_accepted": False,
         "elapsed_ms": "UNKNOWN" if elapsed is None else elapsed,
         "visible_calls": len(calls),
         "trace_completeness_claim": record["trace_completeness"],
         "trace_basis": record.get("trace_basis"),
         "input_tokens": "UNKNOWN" if not observed or unknown["input_tokens"] else totals["input_tokens"],
         "output_tokens": "UNKNOWN" if not observed or unknown["output_tokens"] else totals["output_tokens"],
-        "cost_usd": "UNKNOWN" if not observed or cost_unknown else round(cost, 6),
+        "cost_usd": "UNKNOWN" if not observed or cost_unknown else format(cost, "f"),
         "cost_provenance": "UNKNOWN" if not observed or cost_unknown else sorted(
             {c["cost_provenance"] for c in calls}),
         "actions_recorded": len(actions),
@@ -123,7 +157,8 @@ def assess(record: dict[str, Any]) -> dict[str, Any]:
                    "failed": sum(c["status"] == "failed" for c in checks),
                    "not_run": sum(c["status"] == "not_run" for c in checks),
                    "blocked": sum(c["status"] == "blocked" for c in checks)},
-        "note": "Recorded observations only; undisclosed calls/actions cannot be inferred from this file.",
+        "note": "Recorded observations and acceptance claims only; execution and acceptance are unverified. "
+                "Undisclosed calls/actions cannot be inferred from this file.",
     }
 
 
@@ -132,7 +167,12 @@ def main() -> int:
     parser.add_argument("record", type=Path)
     args = parser.parse_args()
     try:
-        result = assess(json.loads(args.record.read_text(encoding="utf-8")))
+        with args.record.open("rb") as stream:
+            raw = stream.read(1_048_577)
+        if len(raw) > 1_048_576:
+            raise RecordError("Record exceeds 1 MiB")
+        result = assess(json.loads(raw.decode("utf-8"), object_pairs_hook=_unique_pairs,
+                                   parse_constant=_invalid_constant))
     except (OSError, ValueError, RecordError) as exc:
         parser.exit(2, f"INVALID RECORD: {exc}\n")
     print(json.dumps(result, ensure_ascii=False, indent=2))
