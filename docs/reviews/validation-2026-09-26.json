@@ -1,0 +1,106 @@
+{
+  "review_date": "2026-09-26",
+  "python": "3.12.14",
+  "platform": "Linux x86_64",
+  "checks": [
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0,
+      "output_sha256": "83ad95b31c86796a6b8b83665ab70d3e7c7de2bfaa12ca0515d8999880a1e755",
+      "log_file": "unit-tests-2026-09-26.txt"
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "compileall",
+        "-q",
+        "src",
+        "tests",
+        "benchmarks"
+      ],
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_file": null
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "sca.benchmark",
+        "benchmarks/example-record.json"
+      ],
+      "exit_code": 0,
+      "output_sha256": "4c8834400c3b0a65a9726c1fefcd2be376e688a9fadd25a014f162e3a1b6d491",
+      "log_file": null
+    },
+    {
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+        "-m",
+        "sca.context_pack",
+        "tasks/task-S04B-CONTEXT.md",
+        ".",
+        "context preflight",
+        "--file",
+        "src/sca/task.py",
+        "--budget-bytes",
+        "8192"
+      ],
+      "exit_code": 0,
+      "output_sha256": "cdccdffc4685eebcda59fb6427ded148ddd41d6c754a1a32e814c0f7bc1efdb5",
+      "log_file": null
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_file": null
+    }
+  ],
+  "note": "Local execution results for this review. Unit tests use synthetic repositories; no engine/API invoked.",
+  "additional_checks": {
+    "relative_markdown_links": {
+      "checked": 75,
+      "missing": 0
+    },
+    "changed_paths_in_task_scope": true,
+    "credential_pattern_scan_matches": 0,
+    "scan_limitation": "Narrow credential patterns plus manual diff review; not proof that arbitrary secrets are absent."
+  },
+  "reviewed_code_sha256": {
+    "src/sca/__init__.py": "bf8534860d3944b811b843c327f100c11da9f98d51dda34b51605854c0e2d9fb",
+    "src/sca/__main__.py": "ef98192c15cb8b31a28c2117cc70975bbc9dc2481fcc1974d661dcbdcbc21e1f",
+    "src/sca/benchmark.py": "a5eb6dfe3e86f177f9fa731fcd8855fae3b56096b97f72ed0bd48da9fad6df89",
+    "src/sca/context_pack.py": "4e79c0377c622f2108a959408433554b061fd28bebedb59080349868a4f9b2f9",
+    "src/sca/evidence_audit.py": "41d293c2910ca059b16f696481f8f1988bfb42097f827e04480bc143c4defcb3",
+    "src/sca/patch_preview.py": "816ffd548f4257bbaf3126dcdfc6cc67cc3efa3f6328acf51fe314daf6cd6d44",
+    "src/sca/preflight.py": "c285e4e35022515bda832703405025de3f3a0da4fae14557545358e0f5502e4a",
+    "src/sca/selection.py": "346f17910b3caf20960e862edaac38166a3ce363ea3593bbb9fb66752e0ccc50",
+    "src/sca/task.py": "5b26c267ac5c7a63485c795c7081faef04076869802a0ac25db01264f085d34f",
+    "src/sca/trace_audit.py": "80ea02e7903ec9c71afe743fdfbb8009f7a2a76a5f17763a414102d63f11df39",
+    "src/sca/usage_gate.py": "2d1d9c4e7b90b35e2aae60d5f841debf28d44c3898438b2fb1d4df9852646707",
+    "tests/test_benchmark.py": "df6c0e763e7287757ff14bc9510f7d1c1a28a91ce73cacf2934adec091dc2d4d",
+    "tests/test_context_pack.py": "5963979d29d489f14306949f7c7db76dbb5c73f3e055c4902c2645212bb089a0",
+    "tests/test_evidence_audit.py": "a2ee4c83db7988a1ea33f5bdaec1327ba55e7d1e82e36c325c5545011104ba5a",
+    "tests/test_patch_preview.py": "0bd392d0f0368fb11a51c68438d92af974829f1a4019d122125944eb4faec6e7",
+    "tests/test_preflight.py": "ae9290ada140c97f3cc0b51566f9013da2dd507d34513ab39b973c2e74a307ab",
+    "tests/test_repository_contracts.py": "388de0329f999dbe71b42e131fc0c1536a6f9bacfec2184ec099a70885d3ab7e",
+    "tests/test_selection.py": "22b8d93f6a3b9a0fa37d074fa0c65b6e3f7bda5bd70ee4cb4cb63dbd9a19e479",
+    "tests/test_trace_audit.py": "1baee8922e4fc90ee954cdbc5ff1ee4d3580040b2f1d6f55b2ea0b605413d7a8",
+    "tests/test_usage_gate.py": "bfe1d315fad99d9fc4ce198453d39240fb14d869a6186b71efd9d21a93ab1e1d",
+    "benchmarks/fixtures.py": "fc90024a87278eb88572ee4e8f26d433f5e68d9a504002f633c9a439c700c95f"
+  }
+}
