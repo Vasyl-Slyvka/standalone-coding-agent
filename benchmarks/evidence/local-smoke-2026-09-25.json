@@ -1,0 +1,197 @@
+{
+  "schema": "sca.local-smoke-review.v1",
+  "experiment_date": "2026-09-25",
+  "review_date": "2026-09-26",
+  "scope": "Synthetic repo, read-only engine experiment; not a paired benchmark or MVP acceptance",
+  "runs": [
+    {
+      "run_id": "direct",
+      "event_counts": {
+        "step_start": 2,
+        "tool_use": 1,
+        "step_finish": 2
+      },
+      "steps": [
+        {
+          "tokens": {
+            "total": 3263,
+            "input": 3076,
+            "output": 187,
+            "reasoning": 0,
+            "cache": {
+              "write": 0,
+              "read": 0
+            }
+          },
+          "cost_field": 0,
+          "provenance": "engine_reported"
+        },
+        {
+          "tokens": {
+            "total": 3440,
+            "input": 81,
+            "output": 97,
+            "reasoning": 0,
+            "cache": {
+              "write": 0,
+              "read": 3262
+            }
+          },
+          "cost_field": 0,
+          "provenance": "engine_reported"
+        }
+      ],
+      "text_event_count": 0,
+      "server_generations": [
+        {
+          "prompt_evaluated_tokens": 3076,
+          "generated_tokens": 187
+        },
+        {
+          "prompt_evaluated_tokens": 549,
+          "generated_tokens": 256
+        },
+        {
+          "prompt_evaluated_tokens": 81,
+          "generated_tokens": 97
+        }
+      ],
+      "trace_audit_api_call_count": "UNKNOWN",
+      "task_accepted": false,
+      "source_sha256": {
+        "opencode_events.jsonl": "034edb640da5b1c874967ffc772e1749c60f868cff91944bd78daf5517b53666",
+        "llama_server.log": "2876151d663984d309effaa8d1e0a9473a9a0b43a1c8926086ab48d1148f950b"
+      }
+    },
+    {
+      "run_id": "http_metadata_proxy",
+      "event_counts": {
+        "step_start": 2,
+        "tool_use": 1,
+        "step_finish": 2
+      },
+      "steps": [
+        {
+          "tokens": {
+            "total": 3204,
+            "input": 3076,
+            "output": 128,
+            "reasoning": 0,
+            "cache": {
+              "write": 0,
+              "read": 0
+            }
+          },
+          "cost_field": 0,
+          "provenance": "engine_reported"
+        },
+        {
+          "tokens": {
+            "total": 3457,
+            "input": 81,
+            "output": 173,
+            "reasoning": 0,
+            "cache": {
+              "write": 0,
+              "read": 3203
+            }
+          },
+          "cost_field": 0,
+          "provenance": "engine_reported"
+        }
+      ],
+      "text_event_count": 0,
+      "server_generations": [
+        {
+          "prompt_evaluated_tokens": 3076,
+          "generated_tokens": 128
+        },
+        {
+          "prompt_evaluated_tokens": 549,
+          "generated_tokens": 256
+        },
+        {
+          "prompt_evaluated_tokens": 81,
+          "generated_tokens": 173
+        }
+      ],
+      "trace_audit_api_call_count": "UNKNOWN",
+      "task_accepted": false,
+      "source_sha256": {
+        "opencode_proxy_events.jsonl": "09722998dad182bdec1672b97a0589fb9391495a4e810ceb10aeb4af190ad220",
+        "llama_server_proxy.log": "28761a4a619aa6dcbcc17d4af70a61a982457367348385827fbbaa1b393c503f"
+      }
+    }
+  ],
+  "proxy_requests": [
+    {
+      "id": 1,
+      "path": "/v1/chat/completions",
+      "model": "qwen3-0.6b-q4_k_m",
+      "roles": [
+        "system",
+        "user",
+        "user"
+      ],
+      "tools_count": 0,
+      "max_tokens": 256,
+      "status": 200,
+      "usage": "UNKNOWN"
+    },
+    {
+      "id": 2,
+      "path": "/v1/chat/completions",
+      "model": "qwen3-0.6b-q4_k_m",
+      "roles": [
+        "system",
+        "user"
+      ],
+      "tools_count": 3,
+      "max_tokens": 256,
+      "status": 200,
+      "usage": "UNKNOWN"
+    },
+    {
+      "id": 3,
+      "path": "/v1/chat/completions",
+      "model": "qwen3-0.6b-q4_k_m",
+      "roles": [
+        "system",
+        "user",
+        "assistant",
+        "tool"
+      ],
+      "tools_count": 3,
+      "max_tokens": 256,
+      "status": 200,
+      "usage": "UNKNOWN"
+    }
+  ],
+  "proxy_metadata_sha256": "a161f99bcfd7418cf74663733c79dda37429905c3b5efb2ee9fa8d92acf57d5f",
+  "fixture_review": {
+    "hello_sha256": "a55c14346b5c0e11da873793db175efd28d4840a330a5edba18d03d7d7310626",
+    "hello_equals_head": true,
+    "status_at_review": [
+      " M opencode.json"
+    ],
+    "config_change": "Experiment operator changed opencode.json endpoint from localhost:8080 to localhost:8081 for proxy; not an observed engine edit"
+  },
+  "release_artifact_hashes": {
+    "source": "Recorded during S02b.3; original archives and GGUF no longer present at recorded download paths during S06",
+    "rehash_on_review": false,
+    "opencode_archive": "3046e0404fdc60fb80307e7a47824ba07477364178a4d09baa8548496dd6d43b",
+    "llama_cpp_archive": "9e088583293c4c104953ead0dd8957f4e00dca318c7f241c039198e5eb2e2e54",
+    "qwen_gguf": "b0638f08417a2d3c8652760462eb5407c6e30173cf9608ad0820757a281eea0e"
+  },
+  "total_task_usage": "UNKNOWN",
+  "total_task_cost_usd": "UNKNOWN",
+  "r1_gate": "OPEN",
+  "limitations": [
+    "No full request/response usage correlation; additional request purpose inferred, not proven.",
+    "Proxy buffered complete upstream response before forwarding; latency and concurrency may differ.",
+    "Read-only permissions were configured; no independent adversarial denial test was performed.",
+    "Log hashes identify retained inputs, not independent proof of execution; raw logs and session export intentionally excluded.",
+    "Engine exit 0 was recorded during the original run; event files alone do not attest process exit.",
+    "No final answer; no claims of quality, savings, two-provider support, or chosen engine."
+  ]
+}
