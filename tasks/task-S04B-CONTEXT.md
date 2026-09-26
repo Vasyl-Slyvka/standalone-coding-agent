@@ -7,8 +7,12 @@ Branch: main
 - IMPLEMENTATION_MAP.md Context selector and context preflight.
 
 ## Scope
-- src/sca/context_pack.py; tests/test_context_pack.py.
-- docs/slices/011-context-pack.md; README.md; ROADMAP.md; this task.
+- src/sca/context_pack.py
+- tests/test_context_pack.py
+- docs/slices/011-context-pack.md
+- README.md
+- ROADMAP.md
+- tasks/task-S04B-CONTEXT.md
 
 ## Must do
 - Preserve the complete parsed task must-do, must-not, acceptance and stop rule in an immutable mandatory context block.

@@ -7,8 +7,12 @@ Branch: main
 - docs/slices/005-free-test-path.md; user's €0 constraint and decision to defer live S02b while away from the laptop.
 
 ## Scope
-- src/sca/selection.py; tests/test_selection.py.
-- docs/slices/006-selection-snapshot.md; README.md; ROADMAP.md; this task.
+- src/sca/selection.py
+- tests/test_selection.py
+- docs/slices/006-selection-snapshot.md
+- README.md
+- ROADMAP.md
+- tasks/task-S03A-SELECTION.md
 
 ## Must do
 - Accept only an explicit provider, model and endpoint alias from a small local JSON file, with no credentials or fallback config.

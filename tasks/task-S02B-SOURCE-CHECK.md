@@ -8,8 +8,13 @@ Branch: main
 - Pinned upstream OpenCode/Codex sources and current official Ollama integration docs in slice report.
 
 ## Scope
-- src/sca/trace_audit.py; tests/test_trace_audit.py; docs/slices/004-offline-trace-audit.md.
-- tasks/task-S02B-SOURCE-CHECK.md; docs/slices/005-free-test-path.md; README.md; ROADMAP.md.
+- src/sca/trace_audit.py
+- tests/test_trace_audit.py
+- docs/slices/004-offline-trace-audit.md
+- docs/slices/005-free-test-path.md
+- README.md
+- ROADMAP.md
+- tasks/task-S02B-SOURCE-CHECK.md
 
 ## Must do
 - Correct OpenCode `run --format json` decoding from pinned CLI source, and retain separate SSE parsing.

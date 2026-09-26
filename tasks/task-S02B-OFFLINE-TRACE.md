@@ -8,9 +8,13 @@ Branch: main
 - docs/slices/003-static-engine-audit.md; benchmarks/README.md.
 
 ## Scope
-- src/sca/trace_audit.py; tests/test_trace_audit.py.
-- tasks/task-S02B-OFFLINE-TRACE.md; docs/slices/004-offline-trace-audit.md.
-- docs/slices/003-static-engine-audit.md (schema correction); README.md; ROADMAP.md.
+- src/sca/trace_audit.py
+- tests/test_trace_audit.py
+- docs/slices/004-offline-trace-audit.md
+- docs/slices/003-static-engine-audit.md
+- README.md
+- ROADMAP.md
+- tasks/task-S02B-OFFLINE-TRACE.md
 
 ## Must do
 - Audit documented Codex JSONL turn usage and OpenCode SSE step usage without model calls.

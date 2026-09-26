@@ -9,9 +9,10 @@ Branch: main
 - Exact upstream revisions and official documentation linked in the slice report.
 
 ## Scope
-- tasks/task-S02B-STATIC.md
 - docs/slices/003-static-engine-audit.md
-- README.md and ROADMAP.md: progress links only.
+- README.md
+- ROADMAP.md
+- tasks/task-S02B-STATIC.md
 
 ## Must do
 - Pin and cite candidate upstream licenses, execution seams, telemetry and permission interfaces.

@@ -7,8 +7,12 @@ Branch: main
 - IMPLEMENTATION_MAP.md usage/budget modes; docs/slices/006-selection-snapshot.md.
 
 ## Scope
-- src/sca/usage_gate.py; tests/test_usage_gate.py.
-- docs/slices/007-usage-gate.md; README.md; ROADMAP.md; this task.
+- src/sca/usage_gate.py
+- tests/test_usage_gate.py
+- docs/slices/007-usage-gate.md
+- README.md
+- ROADMAP.md
+- tasks/task-S03B-USAGE-GATE.md
 
 ## Must do
 - Process only explicit, visible post-step usage records for one manual provider/model/endpoint selection.

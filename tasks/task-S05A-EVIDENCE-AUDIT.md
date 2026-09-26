@@ -7,8 +7,12 @@ Branch: main
 - IMPLEMENTATION_MAP.md verification/report; docs/slices/008-patch-preview.md.
 
 ## Scope
-- src/sca/evidence_audit.py; tests/test_evidence_audit.py.
-- docs/slices/009-evidence-audit.md; README.md; ROADMAP.md; this task.
+- src/sca/evidence_audit.py
+- tests/test_evidence_audit.py
+- docs/slices/009-evidence-audit.md
+- README.md
+- ROADMAP.md
+- tasks/task-S05A-EVIDENCE-AUDIT.md
 
 ## Must do
 - Compare every reported check and acceptance criterion with the exact parsed task contract.

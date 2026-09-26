@@ -7,8 +7,12 @@ Branch: main
 - IMPLEMENTATION_MAP.md workspace guard; docs/slices/001-preflight.md and 007-usage-gate.md.
 
 ## Scope
-- src/sca/patch_preview.py; tests/test_patch_preview.py.
-- docs/slices/008-patch-preview.md; README.md; ROADMAP.md; this task.
+- src/sca/patch_preview.py
+- tests/test_patch_preview.py
+- docs/slices/008-patch-preview.md
+- README.md
+- ROADMAP.md
+- tasks/task-S04A-PATCH-PREVIEW.md
 
 ## Must do
 - Preview one full-file UTF-8 replacement against explicit Git HEAD and source SHA-256.
