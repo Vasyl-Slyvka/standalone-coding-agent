@@ -29,7 +29,7 @@ PYTHONPATH=src:. python -m sca.benchmark benchmarks/example-record.json
 
 Формат прикладу: [`example-record.json`](example-record.json). Скопіювати його поза Git, заповнити **лише виміряними** даними й перевірити командою `PYTHONPATH=src:. python -m sca.benchmark /path/to/record.json`. Не записувати API key, prompts із секретами, приватні логи. `example-record.json` має `calls=[]`, невідомі час/вартість і **не є** результатом прогону.
 
-Для кожного видимого call записати вибрані provider/model/endpoint alias, `usage_source`, input/output та необов'язкові cache/reasoning counters, `cost_usd` і `price_source`/`cost_provenance`. Якщо usage чи ціна невідомі — `null`, агрегат стає `UNKNOWN`; `0` використовувати лише коли він виміряний. Cache/reasoning **не додаються** до input/output. Якщо є лише еквівалент API-тарифу для підпискового CLI — позначити `estimate`, не плутати зі списанням. `trace_completeness=correlated` можна записати лише після зіставлення з незалежним повним джерелом викликів, вказавши `trace_basis`; валідатор перевіряє наявність обґрунтування, але **не може сам підтвердити його істинність**. Приховані виклики невидимі в одиночному звіті engine.
+Для кожного видимого call записати унікальний непорожній `call_id`, вибрані provider/model/endpoint alias, `usage_source`, input/output та необов'язкові cache/reasoning counters, `cost_usd` і `price_source`/`cost_provenance`. Якщо usage чи ціна невідомі — `null`, агрегат стає `UNKNOWN`; `0` використовувати лише коли він виміряний. Cache/reasoning **не додаються** до input/output. Якщо є лише еквівалент API-тарифу для підпискового CLI — позначити `estimate`, не плутати зі списанням. `trace_completeness=correlated` можна записати лише після зіставлення з незалежним повним джерелом викликів, вказавши `trace_basis`; валідатор перевіряє наявність обґрунтування, але **не може сам підтвердити його істинність**. Приховані виклики невидимі в одиночному звіті engine.
 
 Для `actions` зафіксувати attempted/allowed/rejected файлові, shell та зовнішні дії з часом і результатом; у `checks` — назву, status, фактичний exit code. Для `acceptance=passed` потрібні звірений diff, збережені dirty файли й реальні тести, а не лише текст агента. Виміряти `elapsed_ms`; для timeout/API failure/cancel/error, відсутнього прайсу, failed tests, unknown usage та спроби silent fallback залишити окремі негативні записи. Скрипт навмисно не оголошує `passed` за кількістю токенів або самоствердженням кандидата.
 
@@ -45,3 +45,11 @@ PYTHONPATH=src:. python -m sca.benchmark benchmarks/example-record.json
 | Небезпечні дії та відновлення | Негативні кейси й audit. | Блокувати gate R1→R2 до доказу. |
 
 Для економії токенів робити парний baseline vs selective context за тієї самої моделі, задачі та правил. У звіті вказувати прийнятність, токени/вартість **на прийняту задачу**, а також погіршення якості. Жоден скрипт S02a не демонструє фактичної економії чи повноти telemetry.
+
+## Уточнення після рев’ю S06
+
+Вхідний `cost_usd` — скінченне невід’ємне JSON-число або `null`; `NaN`, infinity, дублікати ключів і повторний `call_id` відхиляються. Відомий агрегат `cost_usd` тепер повертається **десятковим рядком**, без округлення до шести знаків; наприклад `0.00000001` не стає нулем. Decimal підсумовує десяткові представлення завантажених чисел; це не перевірка фактичного тарифу чи точності первісного вимірювання. Невідомий агрегат — `UNKNOWN`.
+
+`usage_source=unknown` не може супроводжуватися відомими token counters; невідома ціна не має відомої price provenance. `trace_basis` для correlated мусить бути непорожнім текстом. Від’ємний цілий exit code допустимий для завершення сигналом. Файл обмежено 1 MiB. `task_accepted=false` зберігається завжди: поле `acceptance` — неперевірена заява автора запису.
+
+[Санітизований локальний smoke evidence](evidence/local-smoke-2026-09-25.json) має окремий формат і не є benchmark-record чи парним вимірюванням якості/ціни.

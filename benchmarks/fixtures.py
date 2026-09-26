@@ -33,7 +33,8 @@ _FILES = {
 
 def _git(root: Path, *args: str) -> str:
     # The fixture must not inherit local hooks, global aliases or an interactive prompt.
-    env = {**os.environ, "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull,
+    env = {**{key: value for key, value in os.environ.items() if not key.startswith("GIT_")},
+           "GIT_CONFIG_NOSYSTEM": "1", "GIT_CONFIG_GLOBAL": os.devnull,
            "GIT_TERMINAL_PROMPT": "0"}
     completed = subprocess.run(
         ["git", "-c", "core.hooksPath=.git/disabled-hooks", "-C", str(root), *args],
