@@ -1,0 +1,97 @@
+{
+  "date": "2026-10-01",
+  "python": "Python 3.12.14",
+  "unit_tests": {
+    "count": 62,
+    "exit_code": 0,
+    "log": "unit-tests-2026-10-01.txt"
+  },
+  "compile_exit": 0,
+  "docs_paths": {
+    "checked": 93,
+    "broken": 0,
+    "limits": "inline local path targets only; no external URL or fragment validation"
+  },
+  "diff_check_exit": 0,
+  "fixture_unchanged_including_git_files": true,
+  "demo": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "sca",
+        "/tmp/sca-s07-demo-seed2y1b/repo",
+        "examples/simple-task.md",
+        "--json"
+      ],
+      "exit_code": 0,
+      "output": {
+        "status": "INSPECTED",
+        "task_id": "SCA-DEMO-SIMPLE",
+        "repository": "/tmp/sca-s07-demo-seed2y1b/repo",
+        "branch": "main",
+        "head": "02d7f8977ba8d783e5397a254e077c9e638694dc",
+        "scope": [
+          "src/math_utils.py"
+        ],
+        "dirty_paths": [],
+        "checks_declared": [
+          "python3 -m unittest discover -s tests -v"
+        ],
+        "issues": [],
+        "policy_status": "not_evaluated",
+        "note": "Read-only inspection; no repo policy, command, model or edit was executed."
+      }
+    },
+    {
+      "command": [
+        "python3",
+        "-m",
+        "sca.benchmark",
+        "benchmarks/example-record.json"
+      ],
+      "exit_code": 0,
+      "output": {
+        "run_id": "EXAMPLE-ONLY",
+        "case_id": "simple",
+        "candidate": "not-a-real-engine",
+        "selected_provider": "example-provider",
+        "selected_model": "example-model",
+        "endpoint_alias": "example-endpoint",
+        "context_mode": "baseline",
+        "acceptance": "not_evaluated",
+        "task_accepted": false,
+        "elapsed_ms": "UNKNOWN",
+        "visible_calls": 0,
+        "trace_completeness_claim": "unverified",
+        "trace_basis": null,
+        "input_tokens": "UNKNOWN",
+        "output_tokens": "UNKNOWN",
+        "cost_usd": "UNKNOWN",
+        "cost_provenance": "UNKNOWN",
+        "actions_recorded": 0,
+        "checks": {
+          "passed": 0,
+          "failed": 0,
+          "not_run": 1,
+          "blocked": 0
+        },
+        "note": "Recorded observations and acceptance claims only; execution and acceptance are unverified. Undisclosed calls/actions cannot be inferred from this file."
+      }
+    }
+  ],
+  "local_history_scan": {
+    "scope": "all reachable local Git blobs and working-tree project files; not a complete remote-history or security audit",
+    "patterns": [
+      "model_key",
+      "github_token",
+      "private_key",
+      "aws_key",
+      "credential_assignment"
+    ],
+    "unique_history_blobs": 112,
+    "credential_pattern_hits": [],
+    "binary_or_large_assets": []
+  },
+  "ci_status": "not_run_yet"
+}
