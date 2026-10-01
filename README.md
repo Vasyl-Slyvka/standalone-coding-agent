@@ -1,72 +1,84 @@
-# Standalone Coding Agent — пакет проєкту
+# Standalone Coding Agent
 
-**APPROVED для дизайну · редакція 1.0 · підтверджено власником 25.09.2026.** Робоча назва. Це пакет для створення **самостійного інструмента**, який писатиме код NODREN та інших репозиторіїв. Уже є вузькі офлайнові компоненти, але **повного агента, ліцензійного рішення або затвердженого вибору рушія ще немає**. Проєкт не змінює production NODREN і не є внутрішнім експертом із його агентної архітектури.
+**Work in progress · experimental Python prototype · engine selection open**
 
-## Почніть тут
+A local coding-agent project built around explicit tasks, manual model choice, reviewable changes and honest usage accounting. The goal is one repository and one task per run, with the developer choosing the provider, model and permitted actions.
 
-| Файл | Відповідає на питання |
-|---|---|
-| [VISION.md](VISION.md) | Навіщо агент, точний scope, non-goals, вимоги CA-R01…09, два Definition of Done. |
-| [ROADMAP.md](ROADMAP.md) | У якому порядку приймати рішення, робити дослідний spike, MVP, V2 і пізні оптимізації. |
-| [IMPLEMENTATION_MAP.md](IMPLEMENTATION_MAP.md) | Які вузли потрібні, які open-source компоненти кандидатні, їхні інтерфейси, task lifecycle та негативні сценарії. |
-| [AGENTS.md](AGENTS.md) | Правила для майбутніх coding агентів/розробників, які працюватимуть **над цим окремим проєктом**, та межі роботи з цільовими repo. |
+Today this repository contains **working offline components and a documented local engine experiment**. The complete task → edit → test → report loop is still ahead. Python components use the standard library; the final coding engine has not been selected.
 
-**Порядок читання:** Vision → Roadmap → Implementation Map → AGENTS.md; перед виконанням конкретного task — чинні інструкції цього репозиторію і target repo. Якщо документи суперечать одне одному, зупинити залежне рішення й погодити правку, не приймати суперечність мовчки.
+Українська документація: [бачення та критерії готовності](VISION.md) · [план](ROADMAP.md) · [карта реалізації](IMPLEMENTATION_MAP.md).
 
-## Поточна реалізація: офлайнові контракти й локальний smoke test
+## What works today
 
-**S01 — офлайновий read-only preflight.** Він читає Markdown task contract, отримує Git branch/HEAD/status, перевіряє scope і повідомляє про конфлікти з незбереженими файлами. `INSPECTED` означає тільки успішну структурну перевірку; **не дозволяє редагування й не підтверджує правила target repo**. Код не викликає модель, не редагує файли цільового repo і не запускає команди з поля Checks. [Звіт S01](docs/slices/001-preflight.md).
+| Component | Implemented behavior | Current boundary |
+|---|---|---|
+| [Task and Git preflight](src/sca/preflight.py) | Parse task constraints; inspect branch, HEAD, dirty paths and scope conflicts. | Read-only structural inspection; repository policy is not evaluated. |
+| [Manual selection snapshot](src/sca/selection.py) | Validate and freeze explicit provider/model/endpoint-alias metadata. | No endpoint resolution, credentials or engine invocation. |
+| [Trace audit](src/sca/trace_audit.py) | Parse supported Codex/OpenCode event formats; reject ambiguous sessions and conflicting steps. | Step events do not prove that every model request was observed. |
+| [Usage gate](src/sca/usage_gate.py) | Evaluate supplied usage records, limits and a soft stop before the next controlled step. | Offline decision; no live engine cancellation or strict spending cap. |
+| [Patch preview](src/sca/patch_preview.py) | Check one-file replacement against scope, HEAD and SHA-256; display differences. | Review display only; no file writes or applicable patch guarantee. |
+| [Context pack](src/sca/context_pack.py) | Preserve task fields and select snippets from explicitly listed tracked files within a UTF-8 byte budget. | No tokenizer, source-authority resolver or measured savings. |
+| [Evidence audit](src/sca/evidence_audit.py) | Compare supplied check/acceptance metadata with the task contract. | Does not execute checks or validate logs; `task_accepted=false`. |
+| [Benchmark foundation](benchmarks/README.md) | Generate four disposable Git fixtures; validate metric records with provenance and `UNKNOWN`. | No model calls or completed comparative benchmark. |
 
-На Python 3.10+ з установленим Git, без встановлення пакета:
+## Try it offline
+
+Requires **Python 3.10+ and Git**. Run from the repository root on Linux/macOS or a compatible shell. No API key, package installation or model download is required.
 
 ```bash
-PYTHONPATH=src python -m sca /path/to/test-repo tasks/example-task.md --json
-PYTHONPATH=src python -m unittest discover -s tests -v
+git clone https://github.com/Vasyl-Slyvka/standalone-coding-agent.git
+cd standalone-coding-agent
+
+# Run the actual unit and regression tests.
+PYTHONPATH=src:. python3 -m unittest discover -s tests -v
+
+# Create a new disposable repository and inspect its task without editing it.
+fixture_parent="$(mktemp -d)"
+python3 -m benchmarks.fixtures simple "$fixture_parent/repo"
+PYTHONPATH=src python3 -m sca "$fixture_parent/repo" examples/simple-task.md --json
+
+# Validate a deliberately unmeasured example record.
+PYTHONPATH=src:. python3 -m sca.benchmark benchmarks/example-record.json
 ```
 
-Приклад `tasks/example-task.md` є **навчальним шаблоном**, його гілка й scope мусять відповідати твоєму тестовому репозиторію. Exit code: `0` — `INSPECTED`, `2` — `BLOCKED`. У цьому слайсі не перевіряються AGENTS.md, issue, canonical documents, фактичні test commands чи API: їх не можна вважати автоматично схваленими після `INSPECTED`.
+The preflight should return `INSPECTED` with `policy_status=not_evaluated`. The benchmark example retains unknown totals and `task_accepted=false`. The fixture's arithmetic bug is intentional: its own tests are a failing baseline for a future editing engine. Preflight reads the `Checks` field but does not run it. Temporary fixtures remain available for inspection.
 
-**S02a — офлайновий benchmark foundation.** [`benchmarks/README.md`](benchmarks/README.md) описує синтетичні Git-фікстури, однаковий протокол для кандидатів і контракт обліку спостережуваних викликів. Команди `python -m benchmarks.fixtures simple` та `PYTHONPATH=src:. python -m sca.benchmark benchmarks/example-record.json` не запускають модель. [Звіт S02a](docs/slices/002-benchmark-foundation.md). Порівняння реальних рушіїв S02b **ще не проводилося**: платний експеримент потребує заданого бюджету й ручного вибору provider/model.
+For other modules, follow the input formats in the [slice reports](docs/slices/001-preflight.md) and [benchmark guide](benchmarks/README.md). Validate documentation paths with `python3 scripts/check_docs.py`.
 
-**S02b.0 — статичний аудит.** [Звіт](docs/slices/003-static-engine-audit.md) зіставляє pinned ліцензії, CLI/API seams, usage й permission gates Codex CLI, OpenCode, Aider і mini-SWE-agent. Це аналіз джерел без model calls; фактичне порівняння S02b залишається відкритим.
+## Evidence and progress
 
-**S02b.1 — офлайновий аналізатор подій.** [Звіт і команди](docs/slices/004-offline-trace-audit.md) описують читання JSONL Codex/OpenCode, дедуплікацію кроків і перевірку явного model mismatch. Turn/step usage не дорівнює повному per-call trace. Сам аналізатор не запускає рушії чи API; пізніші локальні запуски описано в S02b.3.
+- **62 unit/regression tests passed** in the retained [S06 review](docs/reviews/2026-09-26-full-review.md), including Git hook/filter suppression, dirty files, path escapes, malformed usage, trace conflicts and newline differences.
+- A [local OpenCode + llama.cpp/Qwen smoke test](docs/slices/010-local-engine-smoke.md) observed **3 HTTP model requests but only 2 CLI steps**. This is a telemetry gap to resolve; the experiment did not produce a valid final answer or demonstrate agent quality.
+- [Sanitized experiment metadata](benchmarks/evidence/local-smoke-2026-09-25.json) preserves counts and hashes without raw model messages, private logs or model weights.
+- [S07 verification](docs/reviews/2026-10-01-public-readiness.md) records the repeat checks and publication scope. [GitHub Actions](https://github.com/Vasyl-Slyvka/standalone-coding-agent/actions) runs the offline suite on Python 3.10 and 3.13 using pinned official actions.
 
-**S02b.2 — звірка з вихідним кодом.** [Звіт і безплатний шлях тестування](docs/slices/005-free-test-path.md) виправляють формат `opencode run --format json`, відокремлюють його від SSE та описують обмежений локальний тест без API-ключів. Бюджет — €0. Пізніше для обмеженого S02b.3 використано Linux CPU, OpenCode та локальну Qwen; вибір рушія MVP залишається відкритим.
+**Design DoD: 4/4 accepted. Product DoD: 0/5 fully completed criteria.** These are acceptance criteria, not a percentage of development effort. [VISION.md](VISION.md) defines both; the [review matrix](docs/reviews/2026-09-26-full-review.md) explains the missing evidence. R1 remains open.
 
-**S02b.3 — живий локальний smoke test.** [Звіт](docs/slices/010-local-engine-smoke.md): OpenCode `v1.18.32` звернувся до локального llama.cpp/Qwen3 0.6B на синтетичному репозиторії, прочитав файл без змін. Локальний проксі підтвердив три HTTP-запити до тієї самої моделі, але потік CLI — тільки два кроки; допоміжний запит без tools не входить у step usage. Коректну кінцеву відповідь, порівняння рушіїв і gate R1 не підтверджено. Це безкоштовний локальний тест, не вибір engine чи двох API-провайдерів.
+## Next milestones
 
-**S03a — офлайновий знімок ручного вибору.** [Звіт і формат конфігурації](docs/slices/006-selection-snapshot.md) описують явні provider/model/endpoint alias та відхилення неоднозначних значень. `PYTHONPATH=src python3 -m sca.selection /path/to/selection.json` нічого не викликає й позначає вибір `UNVERIFIED_SELECTION`. Повне порівняння S02b та два API-провайдери **відкладені**; локальний smoke test уже проведено. Перехід R1 → R2 не пройдено; повний S03 не виконаний.
+1. Correlate every observed local HTTP request with usage and explicit auxiliary/retry classification; test missing and contradictory telemetry.
+2. Exercise permission, failure and recovery cases; compare CLI wrapper, supervisor and a small API loop on the same fixtures.
+3. Verify two manually chosen API providers when access and an inference budget are available; make the R1 engine decision from evidence.
+4. Integrate repository policy, guarded edits, real verification and recovery; complete paired quality/cost benchmarks and the Product DoD.
 
-**S03b — офлайновий облік і м’яка зупинка.** [Звіт і вхідний контракт](docs/slices/007-usage-gate.md) описують `PYTHONPATH=src python3 -m sca.usage_gate /path/to/usage-record.json`: рішення перед *наступним контрольованим кроком* з видимих синтетичних записів. Невідома вартість лишається `UNKNOWN`, а грошовий ліміт не подається як жорстка гарантія. Цей модуль працює лише з поданими записами й не керує справжніми model calls; R1 gate залишається відкритим.
+The tool is being designed to preserve user changes, obey target-repository rules and avoid hidden model fallback. These are requirements; the offline prototype does not yet enforce a complete runtime policy or sandbox. Unknown usage/cost remains `UNKNOWN`; token savings and strict monetary caps have not been demonstrated.
 
-**S04a — офлайнове прев’ю правки.** [Звіт і формат candidate](docs/slices/008-patch-preview.md) описують `PYTHONPATH=src python3 -m sca.patch_preview /path/to/test-repo /path/to/task.md /path/to/candidate.json`. Команда читає чистий синтетичний Git-репозиторій, звіряє scope, HEAD і SHA-256 старого файлу й показує diff; **файлів не змінює та repo policy не перевіряє**. Повний S04 і R1 gate відкриті.
+## Project map
 
-**S04b — офлайновий добір контексту.** [Звіт і команда](docs/slices/011-context-pack.md) описують збереження повного must-not/acceptance та добір лише явно перелічених Git-файлів у ліміті UTF-8 байтів. Це не токенізатор і не підтвердження authoritative sources або економії.
+| Path | Purpose |
+|---|---|
+| [src/sca](src/sca) | Implemented offline modules and CLI entry points. |
+| [tests](tests) | Executable unit and regression cases. |
+| [benchmarks](benchmarks) | Synthetic fixtures, record example and sanitized local evidence. |
+| [examples/simple-task.md](examples/simple-task.md) | Runnable task for the offline quickstart. |
+| [tasks](tasks) / [docs/slices](docs/slices) | Slice contracts, commands, results and limitations. |
+| [VISION.md](VISION.md) / [ROADMAP.md](ROADMAP.md) | Approved scope, non-goals, acceptance and remaining milestones. |
+| [IMPLEMENTATION_MAP.md](IMPLEMENTATION_MAP.md) / [AGENTS.md](AGENTS.md) | Candidate architecture and task rules. |
 
-**S05a — офлайновий аудит метаданих доказів.** [Звіт і вхідний контракт](docs/slices/009-evidence-audit.md) описують `PYTHONPATH=src python3 -m sca.evidence_audit /path/to/task.md /path/to/record.json`: звірку заявлених перевірок і критеріїв з task spec. Навіть усі `passed` дають лише `STRUCTURALLY_COMPLETE_UNVERIFIED`, `task_accepted=false`: команди й журнали не перевірено фактично. Повний S05 і R1 gate відкриті.
+SCA is a separate project for Git repositories. NODREN is a potential target with its own authorization rules; this project does not change its runtime or phase gates.
 
-**S06 — повне рев’ю 26.09.2026.** [Звіт, матриця CA-R01…09 і обох DoD](docs/reviews/2026-09-26-full-review.md). Виправлено виконання Git-фільтрів/fsmonitor, неоднозначні Scope, облік вартості, змішані traces і невидимі зміни newline; збережено [очищені докази локального тесту](benchmarks/evidence/local-smoke-2026-09-25.json).
+## License and contributions
 
-## У двох абзацах: що будуємо
+**Project license decision pending.** Public visibility does not grant an open-source license. No MIT/Apache license has been selected for SCA. Third-party tools referenced in experiments retain their own licenses; the final dependency/license inventory remains part of Product DoD.
 
-Власник обирає репозиторій, чітку задачу, API-провайдера та модель. Агент готує вузькі правки у відокремленій копії, виконує дозволені перевірки й показує diff, логи та використання токенів. Для MVP перевіряються два різні API-провайдери з **ручним** вибором; автоматичного маршрутизатора немає. Облік витрат спирається на фактичні дані провайдера/рушія, а оцінки позначаються як оцінки. Якщо ціна невідома — відображається `UNKNOWN`.
-
-Пошук і вибіркове читання файлів, короткі результати команд, межа кількості кроків та перевірений prompt cache мають знизити надлишкові токени. Це гіпотези для вимірювання на прийнятих задачах. Готові відкриті рішення з GitHub слід використовувати там, де вони добре підходять: наприклад, `ccusage` для аналізу журналів CLI, `tiktoken`/`tokencost` для попередніх оцінок, `models.dev` для даних про моделі; жоден не дає сам по собі гарантований грошовий ліміт.
-
-## Рішення, які **ще не прийняті**
-
-- Який engine: готовий CLI wrapper, гібридний supervisor або малий власний API loop.
-- Який конкретно provider/API, модель, мова реалізації, ОС та спосіб ізоляції першого MVP.
-- Чи потрібне перемикання моделі посеред запуску і strict pre-call USD cap після досвіду MVP.
-- Які саме версії залежностей/набір ліцензій увійдуть у майбутню публікацію на GitHub.
-
-Це не заважає сформулювати MVP та його критерії прийняття. Рушій обирають **після** порівняння на однакових задачах і перевірки кожного виклику моделі.
-
-## Статус NODREN у цьому контексті
-
-Чинне [NODREN AGENTS.md](https://github.com/Vasyl-Slyvka/NODREN/blob/main/AGENTS.md) вимагає дозволеного issue, branch і evidence; [документаційна карта](https://github.com/Vasyl-Slyvka/NODREN/blob/main/docs/README.md) описує канонічні Vision/Implementation та parts. Звірений 25.09.2026 [acceptance record](https://github.com/Vasyl-Slyvka/NODREN/blob/main/docs/evidence/p0/acceptance/P0_ACCEPTANCE_RECORD.json) має `p1_authorized=false`. Перед кожною реальною задачею для NODREN ці джерела перевіряються заново. Проєкт SCA не успадковує внутрішню архітектуру NODREN.
-
-## Статус цього пакета і наступний крок
-
-Scope, пріоритети та Design DoD **схвалені власником 25.09.2026**; Product DoD лишається майбутнім критерієм для працюючого MVP. Є офлайнові контракти S01/S02a/S02b.0–.2/S03a/S03b/S04a/S04b/S05a та один обмежений локальний S02b.3. NODREN не редагувався. Повний S02b/R1 відкритий через додатковий модельний виклик поза CLI step trace, неперевірені два API-провайдери та відсутність парного порівняння. Далі потрібні per-request спостереження, контроль фонових викликів і порівняльний тест перед вибором рушія.
+Read [AGENTS.md](AGENTS.md) before proposing changes. Keep contributions tied to a small task with acceptance and negative checks; report actual evidence and preserve the current WIP boundaries.
