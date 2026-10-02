@@ -1,0 +1,301 @@
+{
+  "schema": "sca.slice-validation.v1",
+  "slice": "S08",
+  "date": "2026-10-02",
+  "status": "local_checks_pass_publication_pending",
+  "local_base": "07276e4",
+  "remote_base": "33c0b8158a735580e8f50bd6a88741a493a57bae",
+  "python": "3.12.14",
+  "scope_paths": [
+    ".github/workflows/checks.yml",
+    "README.md",
+    "ROADMAP.md",
+    "docs/reviews/unit-tests-2026-10-02-S08.txt",
+    "docs/reviews/validation-2026-10-02-S08.json",
+    "docs/slices/012-request-ledger.md",
+    "examples/request-ledger.json",
+    "src/sca/request_ledger.py",
+    "tasks/task-S08-REQUEST-LEDGER.md",
+    "tests/test_request_ledger.py"
+  ],
+  "unit_tests": {
+    "command": [
+      "python3",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ],
+    "count": 80,
+    "new_tests": 18,
+    "exit_code": 0,
+    "log": "unit-tests-2026-10-02-S08.txt"
+  },
+  "checks": [
+    {
+      "command": [
+        "python3",
+        "-m",
+        "compileall",
+        "-q",
+        "src",
+        "tests",
+        "benchmarks",
+        "scripts"
+      ],
+      "exit_code": 0,
+      "stdout": ""
+    },
+    {
+      "command": [
+        "python3",
+        "scripts/check_docs.py"
+      ],
+      "exit_code": 0,
+      "stdout": "Local Markdown path targets: 101; broken: 0\nExternal URLs, anchors and reference-style links are not validated."
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "stdout": ""
+    }
+  ],
+  "demo": {
+    "command": [
+      "python3",
+      "-m",
+      "sca.request_ledger",
+      "examples/request-ledger.json"
+    ],
+    "exit_code": 0,
+    "result": {
+      "api_call_count": "UNKNOWN",
+      "by_category": {
+        "auxiliary": {
+          "input_tokens": 7,
+          "known_input_tokens_subtotal": 7,
+          "known_output_tokens_subtotal": 3,
+          "output_tokens": 3,
+          "requests": 1,
+          "unknown_input_tokens_requests": 0,
+          "unknown_output_tokens_requests": 0
+        },
+        "retry": {
+          "input_tokens": "UNKNOWN",
+          "known_input_tokens_subtotal": 0,
+          "known_output_tokens_subtotal": 0,
+          "output_tokens": "UNKNOWN",
+          "requests": 0,
+          "unknown_input_tokens_requests": 0,
+          "unknown_output_tokens_requests": 0
+        },
+        "task": {
+          "input_tokens": 14,
+          "known_input_tokens_subtotal": 14,
+          "known_output_tokens_subtotal": 7,
+          "output_tokens": 7,
+          "requests": 2,
+          "unknown_input_tokens_requests": 0,
+          "unknown_output_tokens_requests": 0
+        },
+        "unknown": {
+          "input_tokens": "UNKNOWN",
+          "known_input_tokens_subtotal": 0,
+          "known_output_tokens_subtotal": 0,
+          "output_tokens": "UNKNOWN",
+          "requests": 0,
+          "unknown_input_tokens_requests": 0,
+          "unknown_output_tokens_requests": 0
+        }
+      },
+      "by_purpose": {
+        "auxiliary": {
+          "input_tokens": 7,
+          "known_input_tokens_subtotal": 7,
+          "known_output_tokens_subtotal": 3,
+          "output_tokens": 3,
+          "requests": 1,
+          "unknown_input_tokens_requests": 0,
+          "unknown_output_tokens_requests": 0
+        },
+        "task": {
+          "input_tokens": 14,
+          "known_input_tokens_subtotal": 14,
+          "known_output_tokens_subtotal": 7,
+          "output_tokens": 7,
+          "requests": 2,
+          "unknown_input_tokens_requests": 0,
+          "unknown_output_tokens_requests": 0
+        },
+        "unknown": {
+          "input_tokens": "UNKNOWN",
+          "known_input_tokens_subtotal": 0,
+          "known_output_tokens_subtotal": 0,
+          "output_tokens": "UNKNOWN",
+          "requests": 0,
+          "unknown_input_tokens_requests": 0,
+          "unknown_output_tokens_requests": 0
+        }
+      },
+      "cost_usd": "UNKNOWN",
+      "declared_steps": 2,
+      "failed_requests": [],
+      "issues": [],
+      "note": "Supplied metadata only; classification, model identity and usage are claims. No inference of unseen calls, verified provider totals, prices or enforced limits. Inclusive input/output totals never add cache/reasoning subsets.",
+      "observed_requests": 3,
+      "observed_totals": {
+        "input_tokens": 21,
+        "known_input_tokens_subtotal": 21,
+        "known_output_tokens_subtotal": 10,
+        "output_tokens": 10,
+        "requests": 3,
+        "unknown_input_tokens_requests": 0,
+        "unknown_output_tokens_requests": 0
+      },
+      "requests": [
+        {
+          "category": "auxiliary",
+          "category_source": "operator_annotation",
+          "endpoint_alias": "synthetic-local",
+          "http_status": 200,
+          "model": "synthetic-model",
+          "provider": "synthetic-provider",
+          "purpose": "auxiliary",
+          "request_id": "request-1",
+          "retry_of": null,
+          "run_id": "SYNTHETIC-THREE-REQUESTS",
+          "status": "completed",
+          "step_id": null,
+          "usage": {
+            "cache_read_tokens": 0,
+            "cache_write_tokens": 0,
+            "input_tokens": 7,
+            "output_tokens": 3,
+            "reasoning_tokens": 0,
+            "source": "estimate",
+            "token_semantics": "inclusive"
+          }
+        },
+        {
+          "category": "task",
+          "category_source": "operator_annotation",
+          "endpoint_alias": "synthetic-local",
+          "http_status": 200,
+          "model": "synthetic-model",
+          "provider": "synthetic-provider",
+          "purpose": "task",
+          "request_id": "request-2",
+          "retry_of": null,
+          "run_id": "SYNTHETIC-THREE-REQUESTS",
+          "status": "completed",
+          "step_id": "step-1",
+          "usage": {
+            "cache_read_tokens": 0,
+            "cache_write_tokens": 0,
+            "input_tokens": 10,
+            "output_tokens": 5,
+            "reasoning_tokens": 0,
+            "source": "estimate",
+            "token_semantics": "inclusive"
+          }
+        },
+        {
+          "category": "task",
+          "category_source": "operator_annotation",
+          "endpoint_alias": "synthetic-local",
+          "http_status": 200,
+          "model": "synthetic-model",
+          "provider": "synthetic-provider",
+          "purpose": "task",
+          "request_id": "request-3",
+          "retry_of": null,
+          "run_id": "SYNTHETIC-THREE-REQUESTS",
+          "status": "completed",
+          "step_id": "step-2",
+          "usage": {
+            "cache_read_tokens": 0,
+            "cache_write_tokens": 0,
+            "input_tokens": 4,
+            "output_tokens": 2,
+            "reasoning_tokens": 0,
+            "source": "estimate",
+            "token_semantics": "inclusive"
+          }
+        }
+      ],
+      "requests_without_step": [
+        "request-1"
+      ],
+      "run_id": "SYNTHETIC-THREE-REQUESTS",
+      "schema_version": 1,
+      "selection": {
+        "endpoint_alias": "synthetic-local",
+        "model": "synthetic-model",
+        "provider": "synthetic-provider"
+      },
+      "status": "CONSISTENT_OBSERVATIONS",
+      "task_accepted": false,
+      "trace_completeness": "unverified",
+      "usage_sources": [
+        "estimate"
+      ]
+    }
+  },
+  "example_input_sha256": "d53e2e390849262cf34ca87a80d9ea9d667708f4f6005ee50ff1fb084bcbee76",
+  "example_input_unchanged": true,
+  "workflow_review": {
+    "yaml_parse": "PASS",
+    "permissions": "contents: read",
+    "python_matrix": [
+      "3.10",
+      "3.13"
+    ],
+    "pinned_official_actions_unchanged": true
+  },
+  "scope_review": {
+    "changed_paths": [
+      ".github/workflows/checks.yml",
+      "README.md",
+      "ROADMAP.md",
+      "docs/reviews/unit-tests-2026-10-02-S08.txt",
+      "docs/reviews/validation-2026-10-02-S08.json",
+      "docs/slices/012-request-ledger.md",
+      "examples/request-ledger.json",
+      "src/sca/request_ledger.py",
+      "tasks/task-S08-REQUEST-LEDGER.md",
+      "tests/test_request_ledger.py"
+    ],
+    "unexpected_paths": []
+  },
+  "privacy_review": {
+    "scope": "10 S08 working-tree changed files only; narrow patterns, not a full secret/security audit",
+    "patterns": [
+      "model_key",
+      "github_token",
+      "private_key",
+      "aws_key",
+      "credential_assignment"
+    ],
+    "hits": [],
+    "raw_logs_prompts_credentials_weights_or_new_dependencies_in_diff": false
+  },
+  "boundary": {
+    "live_model_calls": 0,
+    "NODREN_changes": 0,
+    "trace_completeness": "unverified",
+    "api_call_count": "UNKNOWN",
+    "task_cost_usd": "UNKNOWN",
+    "R1": "OPEN",
+    "design_dod": "4/4 previously accepted",
+    "product_dod": "0/5 fully completed criteria"
+  },
+  "publication": {
+    "status": "pending"
+  }
+}
