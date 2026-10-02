@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-02",
-  "status": "LOCAL_CHECKS_PASSED_PUBLICATION_PENDING",
+  "status": "PASS_REVIEWED_SCOPE_AND_PUBLISHED_EXECUTABLES",
   "python": "3.12.14",
   "scope_paths": [
     "src/sca/mock_http.py",
@@ -108,8 +108,85 @@
   "product_dod_fully_closed": 0,
   "remaining": "Two provider/model/API configurations and spending limit; live R1 comparison/engine decision, then gated R2 integration",
   "publication": {
-    "status": "PENDING",
+    "status": "PUBLISHED_VERIFIED",
     "base_remote_sha": "fcaa7b21dd728ab720dda6d053760a6705d99383",
-    "mode": "reviewed web commits; local and remote histories differ"
+    "verified_remote_sha": "f3486cf71a478a8d67e7e8518d447eb4fef17124",
+    "readback_files": 83,
+    "byte_exact_local_matches": 83,
+    "git_blob_sha1_verified": 83,
+    "changed_scope_paths": [
+      ".github/workflows/checks.yml",
+      "README.md",
+      "ROADMAP.md",
+      "benchmarks/mock_api.py",
+      "docs/reviews/pre-api-readiness.md",
+      "docs/reviews/unit-tests-2026-10-02-pre-api.txt",
+      "docs/reviews/validation-2026-10-02-pre-api.json",
+      "docs/slices/013-mock-http.md",
+      "docs/slices/014-pre-api-control.md",
+      "src/sca/mock_http.py",
+      "src/sca/mock_run.py",
+      "tasks/task-S09-MOCK-HTTP.md",
+      "tasks/task-S10-PRE-API.md",
+      "tests/test_mock_http.py",
+      "tests/test_mock_run.py"
+    ],
+    "new_files": 12,
+    "deleted_paths": [],
+    "remote_copy_checks": [
+      {
+        "command": [
+          "python3",
+          "-m",
+          "unittest",
+          "discover",
+          "-s",
+          "tests",
+          "-v"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "python3",
+          "-m",
+          "compileall",
+          "-q",
+          "src",
+          "tests",
+          "benchmarks",
+          "scripts"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "python3",
+          "scripts/check_docs.py"
+        ],
+        "exit_code": 0
+      },
+      {
+        "command": [
+          "python3",
+          "-m",
+          "benchmarks.mock_api"
+        ],
+        "exit_code": 0
+      }
+    ],
+    "remote_copy_tests": 106,
+    "ci": {
+      "run_id": 37032482858,
+      "url": "https://github.com/Vasyl-Slyvka/standalone-coding-agent/actions/runs/37032482858",
+      "conclusion": "success",
+      "jobs": {
+        "offline (3.10)": "success",
+        "offline (3.13)": "success"
+      },
+      "all_unit_compile_docs_quickstart_whitespace_steps": "success"
+    },
+    "mode": "reviewed web commits; local and remote histories differ",
+    "evidence_boundary": "83-file readback and CI are at verified_remote_sha before publishing this evidence update. Final publication changes only this JSON and the S10 report; executable code/tests/demo/workflow stay identical. Final head/CI/readback are verified separately without recursive self-claim."
   }
 }
