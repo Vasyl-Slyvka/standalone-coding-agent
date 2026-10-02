@@ -43,6 +43,7 @@ jobs:
           python3 -m sca "$fixture_parent/repo" examples/simple-task.md --json
           python3 -m sca.benchmark benchmarks/example-record.json
           python3 -m sca.request_ledger examples/request-ledger.json
+          python3 -m benchmarks.mock_api
           test -z "$(git -C "$fixture_parent/repo" status --porcelain)"
       - name: Check whitespace
         run: git diff --check HEAD^ HEAD
