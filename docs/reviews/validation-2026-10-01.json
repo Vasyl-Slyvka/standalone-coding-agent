@@ -93,5 +93,68 @@
     "credential_pattern_hits": [],
     "binary_or_large_assets": []
   },
-  "ci_status": "not_run_yet"
+  "ci_status": "success",
+  "completed_date": "2026-10-02",
+  "publication": {
+    "repository": "Vasyl-Slyvka/standalone-coding-agent",
+    "visibility": "public",
+    "verified_date": "2026-10-02",
+    "verification_basis": [
+      "GitHub Settings rendered visibility",
+      "GitHub repository API"
+    ],
+    "reviewed_remote_head": "837f7689fffd64b6b111447602a8d3e903849b7e",
+    "files_checked": 64,
+    "git_blob_hashes_verified": 64,
+    "exact_byte_matches": 64,
+    "terminal_lf_only_differences": 0,
+    "other_mismatches": [],
+    "boundary": "64-file verification precedes the final evidence-only report/JSON update; no executable changes follow it"
+  },
+  "remote_copy_checks": {
+    "python": "Python 3.12.14",
+    "unit_tests": 62,
+    "unit_test_exit": 0,
+    "compile_exit": 0,
+    "docs_targets": 93,
+    "docs_broken": 0,
+    "docs_exit": 0
+  },
+  "ci": {
+    "run_id": 36964833710,
+    "head_sha": "837f7689fffd64b6b111447602a8d3e903849b7e",
+    "url": "https://github.com/Vasyl-Slyvka/standalone-coding-agent/actions/runs/36964833710",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "id": 110706199898,
+        "python": "3.10",
+        "conclusion": "success"
+      },
+      {
+        "id": 110706199725,
+        "python": "3.13",
+        "conclusion": "success"
+      }
+    ],
+    "checks": [
+      "unit and regression tests",
+      "compile",
+      "documentation paths",
+      "offline quickstart",
+      "whitespace"
+    ],
+    "source": "GitHub Actions runs/jobs API, observed 2026-10-02"
+  },
+  "scope_and_dod": {
+    "S07": "DONE",
+    "design_dod": "4/4 accepted 2026-09-25",
+    "product_dod": "0/5 fully completed criteria, not a percentage",
+    "R1": "OPEN",
+    "engine": "not selected",
+    "project_license": "owner decision pending",
+    "paid_model_calls_during_S07": 0,
+    "NODREN_changes": 0
+  }
 }
