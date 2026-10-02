@@ -1,6 +1,6 @@
 # S08 — офлайновий request/usage ledger
 
-**02.10.2026 · реалізовано; локальні перевірки PASS, публікація виконується.** [Task S08](../../tasks/task-S08-REQUEST-LEDGER.md). Це незалежний контракт до gate R1, без вибору engine, мережі, proxy або model calls. Наявний `trace_audit` правильно рахує кроки, але не має request IDs; `usage_gate` приймає post-step спостереження. Вузький ledger заповнює цю прогалину на нормалізованих metadata, не додаючи CLI/framework dependency.
+**02.10.2026 · S08 DONE: реалізовано, перевірено й опубліковано; CI PASS.** [Task S08](../../tasks/task-S08-REQUEST-LEDGER.md). Це незалежний контракт до gate R1, без вибору engine, мережі, proxy або model calls. Наявний `trace_audit` правильно рахує кроки, але не має request IDs; `usage_gate` приймає post-step спостереження. Вузький ledger заповнює цю прогалину на нормалізованих metadata, не додаючи CLI/framework dependency.
 
 ## Запуск і результат
 
@@ -39,8 +39,14 @@ Unknown keys відхиляються на кожному рівні, довіл
 
 ## Перевірка й межі
 
+- **80/80 unittest PASS**: 62 попередні + 18 request-ledger tests; локально Python 3.12.14 і повторно з повної опублікованої копії. Compilation та `git diff --check` — exit 0.
+- **101 local Markdown path target, 0 broken**; external URLs/anchors/reference-style links не перевірено. Demo exit 0, байти вхідного JSON незмінні.
+- **71/71 remote files прочитано назад і байтово звірено**, Git blob SHA-1 кожного перевірено; remote `fa2f92071fa0e82693932b3e285385b08915c6fb`. Змінені рівно 10 scope paths; видалених чи сторонніх змін немає.
+- [GitHub Actions run 37027660848](https://github.com/Vasyl-Slyvka/standalone-coding-agent/actions/runs/37027660848) — **success**; `offline (3.10)` і `offline (3.13)` виконали тести, compilation, docs, offline quickstart з ledger та whitespace check.
+- Після цієї звірки оновлено лише цей звіт і JSON-докази. Звірка 71 файлу стосується зазначеного SHA до фінального evidence update; executable code, workflow, example і tests не змінено.
+
 [Unittest log](../reviews/unit-tests-2026-10-02-S08.txt) і [машинозчитувані результати](../reviews/validation-2026-10-02-S08.json) фіксують фактичні команди, exits і publication verification. Негативні тести покривають відсутні/суперечливі links, duplicates, cross-run/model drift, task/auxiliary retries, retry parent order/cycles, unknown usage/purpose, cache semantics, malformed JSON, oversized input і заборонені payload fields.
 
 [Старий live smoke](010-local-engine-smoke.md) залишається незмінним: 3 HTTP requests/2 CLI steps підтверджено, але повний request/usage trace й призначення додаткового запиту **не встановлено**. Синтетичний приклад не є повторним engine run. Ledger не перехоплює HTTP, не перевіряє достовірність annotation, не знаходить невидимі calls, не нормалізує конкретний provider, не рахує ціну й не інтегрований із live stop.
 
-**Scope S08:** офлайнова валідація й кореляція. **R1 OPEN; Design DoD 4/4 раніше прийнято; Product DoD 0/5 повністю закритих критеріїв.** Жодних model calls/витрат, нових dependency або NODREN edits. Наступний крок — вузький adapter для збору наскрізних request IDs і provider usage, спочатку з локальним mock server і негативними сценаріями; живий повтор окремо потребуватиме точних weights/engine та дозволених ресурсів.
+**Scope S08:** офлайнова валідація й кореляція. **R1 OPEN; Design DoD 4/4 раніше прийнято; Product DoD 0/5 повністю закритих критеріїв.** Під час S08 не викликали inference API, не додавали dependency і не редагували NODREN. Наступний крок — вузький adapter для збору наскрізних request IDs і provider usage, спочатку з локальним mock server і негативними сценаріями; живий повтор окремо потребуватиме точних weights/engine та дозволених ресурсів.
