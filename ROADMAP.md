@@ -4,6 +4,8 @@
 
 ## Рішення і послідовність
 
+[S09/S10 — підготовка до API](docs/reviews/pre-api-readiness.md): локальні HTTP IDs/estimated usage, зупинка наступної mock спроби, явні retries та metadata reopen перевіряються без API ключів. Старі source/tests незмінні; це незалежний mock дослід, не вибір engine чи перехід до R2. R1 OPEN; наступні входи — два provider/model/API та бюджет для зафіксованого comparison protocol.
+
 [S08 — request/usage ledger від 02.10.2026](docs/slices/012-request-ledger.md): офлайнова кореляція supplied IDs, явні auxiliary/retry records і UNKNOWN; це не live interceptor або повний provider trace. Старий smoke не переатрибутовано; R1 відкритий. Наступний вузький adapter спершу перевіряється локальним mock server.
 
 [S07 — публічний WIP від 01.10.2026](docs/reviews/2026-10-01-public-readiness.md): README, офлайновий приклад і автоматичні перевірки. Публікація не закриває R1 або Product DoD; ліцензійне рішення SCA лишається відкритим.
