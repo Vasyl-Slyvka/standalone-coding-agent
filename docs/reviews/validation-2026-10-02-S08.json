@@ -2,7 +2,7 @@
   "schema": "sca.slice-validation.v1",
   "slice": "S08",
   "date": "2026-10-02",
-  "status": "local_checks_pass_publication_pending",
+  "status": "S08_DONE",
   "local_base": "07276e4",
   "remote_base": "33c0b8158a735580e8f50bd6a88741a493a57bae",
   "python": "3.12.14",
@@ -296,6 +296,52 @@
     "product_dod": "0/5 fully completed criteria"
   },
   "publication": {
-    "status": "pending"
+    "status": "verified",
+    "repository": "Vasyl-Slyvka/standalone-coding-agent",
+    "visibility": "public",
+    "reviewed_head": "fa2f92071fa0e82693932b3e285385b08915c6fb",
+    "files_read_back": 71,
+    "git_blob_hashes_verified": 71,
+    "exact_byte_matches": 71,
+    "other_mismatches": [],
+    "remote_changed_paths_match_scope": true,
+    "removed_paths": [],
+    "boundary": "All 71 files were read back before the final evidence-only report/JSON update; executable code and workflow remain unchanged."
+  },
+  "local_implementation_commit": "7e93d58",
+  "remote_copy_checks": {
+    "unit_tests": 80,
+    "unit_test_exit_code": 0,
+    "compile_exit_code": 0,
+    "docs_targets": 101,
+    "docs_broken": 0,
+    "docs_exit_code": 0
+  },
+  "ci": {
+    "run_id": 37027660848,
+    "head_sha": "fa2f92071fa0e82693932b3e285385b08915c6fb",
+    "url": "https://github.com/Vasyl-Slyvka/standalone-coding-agent/actions/runs/37027660848",
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": [
+      {
+        "name": "offline (3.10)",
+        "id": 110906301236,
+        "conclusion": "success"
+      },
+      {
+        "name": "offline (3.13)",
+        "id": 110906301790,
+        "conclusion": "success"
+      }
+    ],
+    "checks": [
+      "unit and regression tests",
+      "compile",
+      "documentation paths",
+      "offline quickstart including request-ledger CLI",
+      "whitespace"
+    ],
+    "source": "GitHub Actions runs/jobs API observed 2026-10-02"
   }
 }
