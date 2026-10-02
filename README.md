@@ -15,6 +15,7 @@ Today this repository contains **working offline components and a documented loc
 | [Task and Git preflight](src/sca/preflight.py) | Parse task constraints; inspect branch, HEAD, dirty paths and scope conflicts. | Read-only structural inspection; repository policy is not evaluated. |
 | [Manual selection snapshot](src/sca/selection.py) | Validate and freeze explicit provider/model/endpoint-alias metadata. | No endpoint resolution, credentials or engine invocation. |
 | [Trace audit](src/sca/trace_audit.py) | Parse supported Codex/OpenCode event formats; reject ambiguous sessions and conflicting steps. | Step events do not prove that every model request was observed. |
+| [Request/usage ledger](src/sca/request_ledger.py) | Correlate supplied request/step IDs; retain auxiliary calls and retries; show unknown usage and token semantics. | Offline metadata validation; no live interception, verified trace completeness or pricing. |
 | [Usage gate](src/sca/usage_gate.py) | Evaluate supplied usage records, limits and a soft stop before the next controlled step. | Offline decision; no live engine cancellation or strict spending cap. |
 | [Patch preview](src/sca/patch_preview.py) | Check one-file replacement against scope, HEAD and SHA-256; display differences. | Review display only; no file writes or applicable patch guarantee. |
 | [Context pack](src/sca/context_pack.py) | Preserve task fields and select snippets from explicitly listed tracked files within a UTF-8 byte budget. | No tokenizer, source-authority resolver or measured savings. |
@@ -39,6 +40,9 @@ PYTHONPATH=src python3 -m sca "$fixture_parent/repo" examples/simple-task.md --j
 
 # Validate a deliberately unmeasured example record.
 PYTHONPATH=src:. python3 -m sca.benchmark benchmarks/example-record.json
+
+# Correlate invented request metadata: three requests, two CLI steps.
+PYTHONPATH=src python3 -m sca.request_ledger examples/request-ledger.json
 ```
 
 The preflight should return `INSPECTED` with `policy_status=not_evaluated`. The benchmark example retains unknown totals and `task_accepted=false`. The fixture's arithmetic bug is intentional: its own tests are a failing baseline for a future editing engine. Preflight reads the `Checks` field but does not run it. Temporary fixtures remain available for inspection.
@@ -47,7 +51,7 @@ For other modules, follow the input formats in the [slice reports](docs/slices/0
 
 ## Evidence and progress
 
-- **62 unit/regression tests passed** in the retained [S06 review](docs/reviews/2026-09-26-full-review.md), including Git hook/filter suppression, dirty files, path escapes, malformed usage, trace conflicts and newline differences.
+- **80 unit/regression tests passed** in the [S08 checks](docs/slices/012-request-ledger.md): the original 62 plus 18 request-ledger cases. The [S06 review](docs/reviews/2026-09-26-full-review.md) records the earlier fixes to Git hook/filter suppression, dirty files, path escapes, malformed usage, trace conflicts and newline differences.
 - A [local OpenCode + llama.cpp/Qwen smoke test](docs/slices/010-local-engine-smoke.md) observed **3 HTTP model requests but only 2 CLI steps**. This is a telemetry gap to resolve; the experiment did not produce a valid final answer or demonstrate agent quality.
 - [Sanitized experiment metadata](benchmarks/evidence/local-smoke-2026-09-25.json) preserves counts and hashes without raw model messages, private logs or model weights.
 - [S07 verification](docs/reviews/2026-10-01-public-readiness.md) records the repeat checks and publication scope. [GitHub Actions](https://github.com/Vasyl-Slyvka/standalone-coding-agent/actions) runs the offline suite on Python 3.10 and 3.13 using pinned official actions.
@@ -56,7 +60,7 @@ For other modules, follow the input formats in the [slice reports](docs/slices/0
 
 ## Next milestones
 
-1. Correlate every observed local HTTP request with usage and explicit auxiliary/retry classification; test missing and contradictory telemetry.
+1. Connect the tested offline request ledger to a narrow adapter that captures request IDs and provider usage; test it with a local mock server before repeating a live engine experiment. The old smoke's additional request remains unclassified and its total usage unknown.
 2. Exercise permission, failure and recovery cases; compare CLI wrapper, supervisor and a small API loop on the same fixtures.
 3. Verify two manually chosen API providers when access and an inference budget are available; make the R1 engine decision from evidence.
 4. Integrate repository policy, guarded edits, real verification and recovery; complete paired quality/cost benchmarks and the Product DoD.

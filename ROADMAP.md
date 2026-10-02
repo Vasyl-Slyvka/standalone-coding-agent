@@ -4,6 +4,8 @@
 
 ## Рішення і послідовність
 
+[S08 — request/usage ledger від 02.10.2026](docs/slices/012-request-ledger.md): офлайнова кореляція supplied IDs, явні auxiliary/retry records і UNKNOWN; це не live interceptor або повний provider trace. Старий smoke не переатрибутовано; R1 відкритий. Наступний вузький adapter спершу перевіряється локальним mock server.
+
 [S07 — публічний WIP від 01.10.2026](docs/reviews/2026-10-01-public-readiness.md): README, офлайновий приклад і автоматичні перевірки. Публікація не закриває R1 або Product DoD; ліцензійне рішення SCA лишається відкритим.
 
 [Повне рев’ю S06 від 26.09.2026](docs/reviews/2026-09-26-full-review.md) фіксує перевірений scope, виправлення та незакриті критерії DoD. Воно не закриває R1.
