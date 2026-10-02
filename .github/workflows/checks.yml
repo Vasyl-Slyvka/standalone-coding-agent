@@ -1,0 +1,47 @@
+name: Offline checks
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  offline:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.10", "3.13"]
+    env:
+      PYTHONPATH: src:.
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6, verified 2026-10-01
+        with:
+          persist-credentials: false
+          fetch-depth: 2
+      - name: Set up Python
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6, verified 2026-10-01
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Unit and regression tests
+        run: python3 -m unittest discover -s tests -v
+      - name: Compile Python sources
+        run: python3 -m compileall -q src tests benchmarks scripts
+      - name: Check documentation paths
+        run: python3 scripts/check_docs.py
+      - name: Offline quickstart
+        shell: bash
+        run: |
+          fixture_parent="$(mktemp -d)"
+          python3 -m benchmarks.fixtures simple "$fixture_parent/repo"
+          python3 -m sca "$fixture_parent/repo" examples/simple-task.md --json
+          python3 -m sca.benchmark benchmarks/example-record.json
+          test -z "$(git -C "$fixture_parent/repo" status --porcelain)"
+      - name: Check whitespace
+        run: git diff --check HEAD^ HEAD
